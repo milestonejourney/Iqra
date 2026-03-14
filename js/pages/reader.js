@@ -1,5 +1,12 @@
 // ============================================================
 // READER — Iqra Qur'an Reader
+//
+// Audio rules:
+//   1. Switching surah always stops audio — no bleed-over.
+//   2. Surah ends → stop. No auto-advance to next surah.
+//   3. toggleSurahPlay always starts/resumes FULL SURAH mode
+//      from currentAyah — never single-ayah mode.
+//   4. Tapping an ayah number plays that single ayah only.
 // ============================================================
 
 const Reader = {
@@ -8,7 +15,7 @@ const Reader = {
     ayahs:       [],
     currentAyah: 1,
     isPlaying:   false,
-    playMode:    'idle',
+    playMode:    'idle',  // 'idle' | 'surah' | 'single'
     audio:       null,
     playQueue:   [],
     loading:     false,
@@ -22,9 +29,13 @@ const Reader = {
     await this.loadSurah(lastSurah);
   },
 
+  // ── Load surah ────────────────────────────────────────────
   async loadSurah(num, startAyah) {
     if (num < 1 || num > 114) return;
+
+    // FIX 1: Always stop audio when switching surah
     this._stopAudio();
+
     this.state.surahNum = num;
     this.state.loading  = true;
     this.state.error    = null;
@@ -32,10 +43,8 @@ const Reader = {
     this._showLoading();
     this._renderSurahHeader(num);
     this._updateNavArrows(num);
-    saveLastSurah(num);
-
-    // Update nav button immediately
     this._updateNavBtn(num);
+    saveLastSurah(num);
 
     try {
       const ayahs = await fetchSurah(num);
@@ -54,8 +63,7 @@ const Reader = {
     }
   },
 
-  // ── Render ───────────────────────────────────────────────
-
+  // ── Render ────────────────────────────────────────────────
   renderAyahs() {
     const container = document.getElementById('ayah-container');
     if (!container) return;
@@ -71,10 +79,7 @@ const Reader = {
       container.appendChild(bism);
     }
 
-    this.state.ayahs.forEach(ayah => {
-      container.appendChild(this._buildAyahEl(ayah));
-    });
-
+    this.state.ayahs.forEach(ayah => container.appendChild(this._buildAyahEl(ayah)));
     this._highlightAyah(this.state.currentAyah);
   },
 
@@ -114,15 +119,14 @@ const Reader = {
     this.state.ayahs.forEach(ayah => {
       const block = document.getElementById('ayah-' + ayah.num);
       if (!block) return;
-      const transEl = block.querySelector('.ayah-translation');
-      if (transEl) transEl.textContent = getAyahTranslation(ayah);
+      const el = block.querySelector('.ayah-translation');
+      if (el) el.textContent = getAyahTranslation(ayah);
     });
   },
 
   _renderSurahHeader(num) {
     const meta    = getSurahMeta(num);
     const langIdx = currentLang === 'ur' ? 1 : currentLang === 'hi' ? 2 : 0;
-
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     set('surah-name-arabic', meta.arabic);
     set('surah-name',        meta.name[langIdx] || meta.name[0]);
@@ -136,7 +140,7 @@ const Reader = {
   },
 
   _updateNavBtn(num) {
-    const meta    = getSurahMeta(num);
+    const meta = getSurahMeta(num);
     const arabicEl = document.getElementById('nav-surah-arabic');
     const nameEl   = document.getElementById('nav-surah-name');
     if (arabicEl) arabicEl.textContent = meta.arabic;
@@ -150,8 +154,8 @@ const Reader = {
     if (n) n.disabled = num >= 114;
   },
 
-  // ── Audio ────────────────────────────────────────────────
-
+  // ── Audio: single ayah ────────────────────────────────────
+  // Tapping the ayah number medallion → play that one ayah only.
   _playSingleAyah(ayahNum) {
     this._stopAudio();
     this.state.playMode    = 'single';
@@ -162,12 +166,19 @@ const Reader = {
     this._playUrl(getAudioUrl(this.state.surahNum, ayahNum));
   },
 
+  // ── Audio: full surah ─────────────────────────────────────
+  // FIX 3: toggleSurahPlay always operates in surah mode.
+  // - If playing → pause
+  // - If paused mid-surah → resume
+  // - If idle → start full surah from currentAyah
   toggleSurahPlay() {
     if (this.state.isPlaying) {
       this._pauseAudio();
     } else if (this.state.playMode === 'surah' && this.state.playQueue.length > 0) {
+      // Resume surah from where we paused
       this._resumeAudio();
     } else {
+      // Always start full surah — even if last action was single-ayah
       this._startSurahPlay(this.state.currentAyah || 1);
     }
   },
@@ -183,14 +194,8 @@ const Reader = {
 
   _playNextInQueue() {
     if (this.state.playQueue.length === 0) {
+      // FIX 2: Surah ends → stop. No auto-advance to next surah.
       this._stopAudio();
-      if (this.state.surahNum < 114) {
-        setTimeout(() => {
-          this.loadSurah(this.state.surahNum + 1, 1).then(() => {
-            this._startSurahPlay(1);
-          });
-        }, 800);
-      }
       return;
     }
     const ayahNum = this.state.playQueue.shift();
@@ -203,7 +208,7 @@ const Reader = {
 
   _bindAudioEvents() {
     const audio = this.state.audio;
-    audio.addEventListener('ended',  () => {
+    audio.addEventListener('ended', () => {
       if (this.state.playMode === 'surah') this._playNextInQueue();
       else this._stopAudio();
     });
@@ -223,8 +228,8 @@ const Reader = {
 
   _stopAudio() {
     const audio = this.state.audio;
-    if (!audio.paused) audio.pause();
-    audio.src = '';
+    if (audio && !audio.paused) audio.pause();
+    if (audio) audio.src = '';
     this.state.isPlaying  = false;
     this.state.playMode   = 'idle';
     this.state.playQueue  = [];
@@ -262,7 +267,7 @@ const Reader = {
     if (c) c.innerHTML = `
       <div class="reader-loading">
         <div class="loading-spinner"></div>
-        <div class="loading-text" data-i18n="loading">${t('loading')}</div>
+        <div class="loading-text">${t('loading')}</div>
       </div>`;
   },
 
@@ -291,15 +296,14 @@ function openSurahSelector() {
 }
 
 function closeSurahSelector() {
-  const modal = document.getElementById('surah-modal');
-  if (modal) modal.classList.remove('open');
+  document.getElementById('surah-modal')?.classList.remove('open');
 }
 
 function renderSurahList(query) {
   const list = document.getElementById('surah-list');
   if (!list) return;
-  const q        = (query || '').toLowerCase().trim();
-  const langIdx  = currentLang === 'ur' ? 1 : currentLang === 'hi' ? 2 : 0;
+  const q       = (query || '').toLowerCase().trim();
+  const langIdx = currentLang === 'ur' ? 1 : currentLang === 'hi' ? 2 : 0;
   const filtered = q
     ? SURAHS.filter(s =>
         s.name[0].toLowerCase().includes(q) ||

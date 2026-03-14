@@ -14,44 +14,66 @@ function showPage(pageName) {
   });
 
   if (pageName === 'overview') Overview.render();
-  if (pageName === 'reader' && Reader.state.ayahs.length === 0) Reader.init();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
 
+  // 1. Apply persisted preferences — no flash
   initTheme();
   initI18n();
 
-  // Start on overview
+  // 2. Show overview first
   showPage('overview');
 
-  // Init reader in background
+  // 3. Init reader
   await Reader.init();
 
-  // Keyboard shortcuts
+  // 4. Auto-show tour on first visit
+  if (Tour.shouldAutoShow()) {
+    setTimeout(() => Tour.open(), 800);
+  }
+
+  // 5. Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if (e.target.tagName === 'INPUT') return;
     if (e.key === ' ' || e.key === 'k') { e.preventDefault(); Reader.toggleSurahPlay(); }
     if (e.key === 'ArrowRight') nextSurah();
     if (e.key === 'ArrowLeft')  prevSurah();
-    if (e.key === 'Escape') { closeSurahSelector(); closeSettings(); }
+    if (e.key === 'Escape') {
+      closeSurahSelector();
+      closeSettings();
+      Tour.close();
+    }
   });
 
-  // Modal backdrop click to close
+  // 6. Close modals on backdrop click
   document.getElementById('surah-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('surah-modal')) closeSurahSelector();
   });
 
-  // Surah search
+  // 7. Surah search
   document.getElementById('surah-search').addEventListener('input', e => {
     renderSurahList(e.target.value);
   });
 
-  // Ayah goto — enter key
-  const ayahInput = document.getElementById('ayah-goto-input');
-  if (ayahInput) {
-    ayahInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') gotoAyah();
-    });
-  }
+  // 8. Ayah goto — enter key
+  document.getElementById('ayah-goto-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') gotoAyah();
+  });
+
+  // 9. Tour swipe support (touch)
+  let _tourTouchX = null;
+  document.getElementById('tour-card')?.addEventListener('touchstart', e => {
+    _tourTouchX = e.touches[0].clientX;
+  }, { passive: true });
+  document.getElementById('tour-card')?.addEventListener('touchend', e => {
+    if (_tourTouchX === null) return;
+    const diff = _tourTouchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) Tour.next();
+      else Tour.prev();
+    }
+    _tourTouchX = null;
+  }, { passive: true });
+
 });
