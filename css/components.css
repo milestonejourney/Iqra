@@ -876,24 +876,49 @@ a:hover { color: var(--gold-light); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Bottom nav layout adjustment ───────────────────────── */
-/* Audio bar hidden on overview; visible on reader          */
+/* ── Bottom nav layout ───────────────────────────────────── */
+/* Three sections: [Overview tab] [Audio bar] [Reader] [Bookmarks] */
+/* Audio bar is flex:1 and shrinks to fit — no overflow on mobile  */
 #bottomNav {
-  justify-content: center;
+  justify-content: stretch;
   gap: 0;
+  overflow: hidden;       /* never overflow the viewport */
+  box-sizing: border-box;
+  width: 100%;
 }
 
-/* Nav tab buttons take equal space */
-.bottom-nav-btn { flex: 0 0 80px; }
+/* Nav tab buttons — fixed, compact on small screens */
+.bottom-nav-btn {
+  flex: 0 0 auto;
+  min-width: 52px;
+  max-width: 72px;
+  padding: 8px 4px;
+}
 
-/* Audio bar fills remaining space, centered */
+/* Audio bar fills remaining space but never forces overflow */
 #audio-bar {
   display: flex;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;           /* allows shrinking below content size */
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 0 8px;
+  gap: 8px;
+  padding: 0 4px;
+  overflow: hidden;
+}
+
+/* Play button shrinks gracefully on small screens */
+#play-btn {
+  min-width: 0;
+  flex-shrink: 1;
+  padding: 11px 16px;
+}
+
+@media (max-width: 360px) {
+  .bottom-nav-btn { min-width: 44px; }
+  #play-btn { padding: 10px 12px; font-size: 11px; }
+  #audio-bar { gap: 4px; }
+  .bnb-label { display: none; }
 }
 
 /* ══════════════════════════════════════════════════════════

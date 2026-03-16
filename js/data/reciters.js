@@ -1,6 +1,6 @@
 // ============================================================
-// RECITERS — Available reciters on everyayah.com
-// folder: used to build audio URL
+// RECITERS — Iqra Qur'an Reader
+// Folder names verified directly from everyayah.com/recitations_ayat.html
 // ============================================================
 const RECITERS = [
   {
@@ -9,9 +9,14 @@ const RECITERS = [
     name:   ['Mishary Rashid Al-Afasy', 'مشاری راشد العفاسی', 'मिशारी राशिद अल-अफ़सी'],
   },
   {
-    id:     'basit',
-    folder: 'Abdul_Basit_Mujawwad_128kbps',
-    name:   ['Abdul Basit (Mujawwad)', 'عبد الباسط عبد الصمد', 'अब्दुल बासित (मुजव्वद)'],
+    id:     'sudais',
+    folder: 'Abdurrahmaan_As-Sudais_192kbps',
+    name:   ['Abdul Rahman Al-Sudais', 'عبدالرحمٰن السدیس', 'अब्दुर-रहमान अस-सुदैस'],
+  },
+  {
+    id:     'shuraim',
+    folder: 'Saood_ash-Shuraym_128kbps',
+    name:   ['Saud Al-Shuraim', 'سعود الشریم', 'साऊद अश-शुरैम'],
   },
   {
     id:     'ghamdi',
@@ -19,9 +24,9 @@ const RECITERS = [
     name:   ['Saad Al-Ghamdi', 'سعد الغامدی', 'साद अल-ग़ामदी'],
   },
   {
-    id:     'akhdar',
-    folder: 'Ibrahim_Akhdar_32kbps',
-    name:   ['Ibrahim Al-Akhdar', 'ابراہیم الاخضر', 'इब्राहीम अल-अख़्दर'],
+    id:     'husary',
+    folder: 'Husary_128kbps',
+    name:   ['Mahmoud Khalil Al-Hussary', 'محمود خلیل الحصری', 'महमूद ख़लील अल-हुसरी'],
   },
 ];
 
