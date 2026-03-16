@@ -12,7 +12,7 @@
 //   Audio MP3s  → Cache First (replay without re-downloading)
 // ============================================================
 
-const APP_VERSION = 'iqra-v1.0';
+const APP_VERSION = 'iqra-v3.1';
 const SHELL_CACHE = APP_VERSION + '-shell';
 const API_CACHE   = APP_VERSION + '-api';
 const AUDIO_CACHE = APP_VERSION + '-audio';
@@ -26,13 +26,19 @@ const SHELL_FILES = [
   './css/components.css',
   './app.js',
   './js/data/surahs.js',
+  './js/data/juz.js',
+  './js/data/sajdah.js',
+  './js/data/reciters.js',
   './js/services/store.js',
   './js/services/quran-api.js',
+  './js/services/offline.js',
+  './js/services/notifications.js',
   './js/core/theme.js',
   './js/core/i18n.js',
   './js/core/settings.js',
   './js/pages/overview.js',
   './js/pages/reader.js',
+  './js/pages/bookmarks.js',
   './js/pages/tour.js',
   './fonts/KFGQPCUthmanicScriptHAFS.woff2',
   './icons/logo-iqra.png',
@@ -146,4 +152,190 @@ function offlineFallback(request) {
 // ── Skip waiting — activate new SW immediately ─────────────
 self.addEventListener('message', event => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+// ============================================================
+// NOTIFICATIONS — Service Worker side
+//
+// Receives SCHEDULE_NOTIFICATION messages from the app.
+// Uses setTimeout to fire at the exact scheduled time.
+// Timers are stored in memory — survive as long as the SW lives.
+// On Android PWA the SW is kept alive by the OS reliably.
+// ============================================================
+
+// In-memory timer store: notifType → timeoutId
+const _notifTimers = {};
+
+self.addEventListener('message', event => {
+  const msg = event.data;
+  if (!msg) return;
+
+  if (msg.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
+  if (msg.type === 'SCHEDULE_NOTIFICATION') {
+    _scheduleNotification(msg);
+    return;
+  }
+
+  if (msg.type === 'CANCEL_NOTIFICATION') {
+    _cancelNotification(msg.notifType);
+    return;
+  }
+});
+
+function _scheduleNotification(msg) {
+  const { notifType, delay, data, icon, badge } = msg;
+
+  // Cancel any existing timer for this type
+  _cancelNotification(notifType);
+
+  if (delay < 0) return; // already passed — skip
+
+  // Cap at 24h + 1min to avoid timer precision issues on long delays
+  const safeDelay = Math.min(delay, 24 * 60 * 60 * 1000 + 60000);
+
+  _notifTimers[notifType] = setTimeout(async () => {
+    try {
+      let title, body;
+
+      if (msg.fetchAyah) {
+        // Fetch the ayah text at fire time for a rich notification
+        const result = await _fetchAyahForNotif(
+          msg.surahNum, msg.ayahNum, msg.lang,
+          msg.surahName, msg.surahNameUr, msg.surahNameHi
+        );
+        title = result.title;
+        body  = result.body;
+      } else {
+        title = msg.title;
+        body  = msg.body;
+      }
+
+      await self.registration.showNotification(title, {
+        body,
+        icon:     icon  || './icons/icon-192.png',
+        badge:    badge || './icons/favicon-32.png',
+        tag:      'iqra-' + notifType,  // replaces previous of same type
+        renotify: false,
+        vibrate:  [200, 100, 200],
+        data:     data || {},
+        actions: [
+          { action: 'open',    title: 'Open Iqra' },
+          { action: 'dismiss', title: 'Dismiss'   },
+        ],
+      });
+    } catch(e) {
+      console.warn('Iqra: notification failed', e);
+    }
+  }, safeDelay);
+}
+
+// ── Fetch ayah text for the Ayah of the Day notification ──
+// Tries Quran.com for Arabic, AlQuran.cloud for translation.
+// Falls back to surah name + ayah number if offline.
+async function _fetchAyahForNotif(surahNum, ayahNum, lang, nameEn, nameUr, nameHi) {
+  // Title — always surah name + ayah number (clean, clear)
+  const surahName = lang === 'ur' ? nameUr : lang === 'hi' ? nameHi : nameEn;
+  const ayahLabel = lang === 'ur' ? 'آیت' : lang === 'hi' ? 'आयत' : 'Ayah';
+  const title = (lang === 'ur' ? 'آج کی آیت' :
+                 lang === 'hi' ? 'आज की आयत' : 'Ayah of the Day');
+
+  // Fallback body — used if fetch fails
+  const fallbackBody = surahName + ' · ' + ayahLabel + ' ' + ayahNum;
+
+  try {
+    // Fetch Arabic text from Quran.com
+    const arUrl = 'https://api.quran.com/api/v4/verses/by_key/' +
+      surahNum + ':' + ayahNum +
+      '?language=en&words=false&fields=text_uthmani';
+
+    // Fetch translation from AlQuran.cloud
+    const edition = lang === 'ur' ? 'ur.jalandhry' :
+                    lang === 'hi' ? 'hi.hindi'      : 'en.sahih';
+    const trUrl = 'https://api.alquran.cloud/v1/ayah/' +
+      surahNum + ':' + ayahNum + '/' + edition;
+
+    const [arRes, trRes] = await Promise.all([
+      fetch(arUrl),
+      fetch(trUrl),
+    ]);
+
+    if (!arRes.ok || !trRes.ok) throw new Error('fetch failed');
+
+    const [arData, trData] = await Promise.all([
+      arRes.json(),
+      trRes.json(),
+    ]);
+
+    // Sanitise Arabic — strip Uthmanic combining marks that cause issues
+    const arabic = (arData.verse?.text_uthmani || '')
+      .replace(/[ۭ۟۠ۢ]/g, '')
+      .trim();
+
+    const translation = (trData.data?.text || '').trim();
+
+    // Truncate Arabic to ~40 chars so it fits in notification
+    const arabicShort = arabic.length > 42
+      ? arabic.substring(0, 40) + '…'
+      : arabic;
+
+    // Truncate translation to ~80 chars
+    const transShort = translation.length > 82
+      ? translation.substring(0, 80) + '…'
+      : translation;
+
+    // Body: Arabic on first line, translation on second
+    const body = arabicShort + '
+' + transShort;
+
+    return { title, body };
+
+  } catch(e) {
+    // Offline or API error — fall back to surah name + ayah number
+    console.warn('Iqra: ayah fetch for notification failed, using fallback', e.message);
+    return { title, body: fallbackBody };
+  }
+}
+
+function _cancelNotification(notifType) {
+  if (_notifTimers[notifType]) {
+    clearTimeout(_notifTimers[notifType]);
+    delete _notifTimers[notifType];
+  }
+}
+
+// ── Notification click → open app at correct ayah ─────────
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
+  const data    = event.notification.data || {};
+  const surah   = data.surah || 1;
+  const ayah    = data.ayah  || 1;
+  const notifType = event.notification.tag?.replace('iqra-', '') || '';
+
+  const url = self.registration.scope +
+    '?notif=' + notifType +
+    '&surah=' + surah +
+    '&ayah='  + ayah;
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // If app already open — focus it and navigate
+        for (const client of windowClients) {
+          if ('focus' in client) {
+            client.focus();
+            client.navigate(url);
+            return;
+          }
+        }
+        // App not open — open a new window
+        return clients.openWindow(url);
+      })
+  );
 });

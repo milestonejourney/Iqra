@@ -1,34 +1,99 @@
 // ============================================================
-// I18N — Iqra Qur'an Reader
+// I18N — Iqra V2
 // ============================================================
 
 const STRINGS = {
-  app_name:        ['Iqra',                    'اِقرَا',              'इक़रा'],
-  app_tagline:     ['Read. Listen. Reflect.',  'پڑھیں۔ سنیں۔ سوچیں۔','पढ़ें। सुनें। सोचें।'],
-  settings:        ['Settings',               'ترتیبات',             'सेटिंग्ज़'],
-  theme:           ['Theme',                  'تھیم',                'थीम'],
-  theme_dark:      ['Dark',                   'تاریک',               'अँधेरा'],
-  theme_light:     ['Light',                  'روشن',                'रोशन'],
-  arabic_size:     ['Arabic Size',            'عربی حجم',            'अरबी साइज़'],
-  trans_size:      ['Translation Size',       'ترجمہ حجم',           'तर्जुमा साइज़'],
-  language:        ['Language',              'زبان',                'भाषा'],
-  lang_en:         ['English',               'English',             'English'],
-  lang_ur:         ['اردو',                   'اردو',                'اردو'],
-  lang_hi:         ['हिंदी',                   'हिंदी',               'हिंदी'],
-  overview:        ['Overview',              'جائزہ',               'जायज़ा'],
-  reader:          ['Reader',               'قاری',                'पाठक'],
-  select_surah:    ['Select Surah',         'سورۃ منتخب کریں',     'सूरह चुनें'],
-  search_placeholder: ['Search by name or number…', 'نام یا نمبر سے تلاش کریں…', 'नाम या नंबर से खोजें…'],
-  goto_ayah:       ['Go to Ayah',           'آیت پر جائیں',        'आयत पर जाएं'],
-  goto_placeholder:['Ayah number…',         'آیت نمبر…',           'आयत नंबर…'],
-  ayahs:           ['ayahs',               'آیات',                'आयात'],
-  makkan:          ['Makkan',              'مکی',                 'मक्की'],
-  madinan:         ['Madinan',             'مدنی',                'मदनी'],
-  play_surah:      ['Play Surah',          'سورۃ سنیں',           'सूरह सुनें'],
-  pause:           ['Pause',              'رکیں',                'रुकें'],
-  loading:         ['Loading…',           'لوڈ ہو رہا ہے…',      'लोड हो रहा है…'],
-  error_load:      ['Could not load surah. Please check your connection.', 'سورۃ لوڈ نہیں ہوئی۔ انٹرنیٹ چیک کریں۔', 'सूरह लोड नहीं हुई। इंटरनेट चेक करें।'],
-  retry:           ['Retry',              'دوبارہ کوشش کریں',    'दोबारा कोशिश करें'],
+  // App
+  app_name:          ['Iqra',                        'اِقرَا',                    'इक़रा'],
+  app_tagline:       ['Read. Listen. Reflect.',      'پڑھیں۔ سنیں۔ سوچیں۔',     'पढ़ें। सुनें। सोचें।'],
+
+  // Settings
+  settings:          ['Settings',                    'ترتیبات',                   'सेटिंग्ज़'],
+  theme:             ['Theme',                        'تھیم',                      'थीम'],
+  theme_dark:        ['Dark',                        'تاریک',                     'अँधेरा'],
+  theme_light:       ['Light',                       'روشن',                      'रोशन'],
+  arabic_size:       ['Arabic Size',                 'عربی حجم',                  'अरबी साइज़'],
+  trans_size:        ['Translation Size',            'ترجمہ حجم',                 'तर्जुमा साइज़'],
+  language:          ['Language',                    'زبان',                      'भाषा'],
+  lang_en:           ['English',                     'English',                   'English'],
+  lang_ur:           ['اردو',                         'اردو',                      'اردو'],
+  lang_hi:           ['हिंदी',                         'हिंदी',                     'हिंदी'],
+  reciter:           ['Reciter',                     'قاری',                      'क़ारी'],
+  reading_mode:      ['Reading Mode',                'پڑھنے کا موڈ',               'पढ़ने का मोड'],
+  reading_mode_on:   ['On',                          'آن',                        'चालू'],
+  reading_mode_off:  ['Off',                         'آف',                        'बंद'],
+  offline_cache:     ['Offline Cache',               'آف لائن کیش',               'ऑफ़लाइन कैश'],
+  download_all:      ['Download All Surahs',         'تمام سورتیں ڈاؤنلوڈ کریں', 'सभी सूरहें डाउनलोड करें'],
+  surahs_cached:     ['surahs saved',                'سورتیں محفوظ',              'सूरहें सेव'],
+  all_cached:        ['All 114 surahs saved ✓',      'تمام ۱۱۴ سورتیں محفوظ ✓', 'सभी ११४ सूरहें सेव ✓'],
+  download_complete: ['Download complete!',          'ڈاؤنلوڈ مکمل!',             'डाउनलोड पूरा!'],
+  download_failed:   ['Download failed. Try again.', 'ڈاؤنلوڈ ناکام۔ دوبارہ کوشش کریں۔','डाउनलोड नाकाम। दोबारा कोशिश करें।'],
+
+  // Navigation
+  overview:          ['Overview',                    'جائزہ',                     'जायज़ा'],
+  reader:            ['Reader',                      'قرآن',                      'क़ुरआन'],
+  bookmarks:         ['Bookmarks',                   'بک مارکس',                  'बुकमार्क्स'],
+
+  // Overview
+  surah_view:        ['Surahs',                      'سورتیں',                    'सूरहें'],
+  juz_view:          ['Juz',                         'پارے',                      'पारे'],
+  favourites:        ['Favourites',                  'پسندیدہ',                   'पसंदीदा'],
+  no_favourites:     ['No favourites yet',           'ابھی کوئی پسندیدہ نہیں',   'अभी कोई पसंदीदा नहीं'],
+  no_fav_body:       ['Tap the ♡ on any Surah to add it here.', 'کسی بھی سورت کا ♡ دبائیں۔', 'किसी भी सूरह का ♡ दबाएं।'],
+
+  // Surah selector
+  select_surah:      ['Select Surah',                'سورۃ منتخب کریں',           'सूरह चुनें'],
+  search_placeholder:['Search by name or number…',  'نام یا نمبر سے تلاش کریں…', 'नाम या नंबर से खोजें…'],
+  goto_ayah:         ['Go to Ayah',                  'آیت پر جائیں',              'आयत पर जाएं'],
+  goto_placeholder:  ['Ayah number…',               'آیت نمبر…',                 'आयत नंबर…'],
+  ayahs:             ['ayahs',                       'آیات',                      'आयात'],
+  makkan:            ['Makkan',                      'مکی',                       'मक्की'],
+  madinan:           ['Madinan',                     'مدنی',                      'मदनी'],
+
+  // Reader
+  play_surah:        ['Play Surah',                  'سورۃ سنیں',                 'सूरह सुनें'],
+  pause:             ['Pause',                       'رکیں',                      'रुकें'],
+  ayah_label:        ['Ayah',                        'آیت',                       'आयत'],
+  sajdah:            ['Sajdah',                      'سجدہ',                      'सज्दा'],
+  juz_label:         ['Juz',                         'پارہ',                      'पारा'],
+
+  // Bookmarks
+  no_bookmarks:      ['No bookmarks yet',            'ابھی کوئی بک مارک نہیں',   'अभी कोई बुकमार्क नहीं'],
+  no_bookmarks_body: ['Long-press any Ayah to bookmark it.', 'کسی بھی آیت کو لمبا دبائیں۔', 'किसी भी आयत को देर तक दबाएं।'],
+  bookmark_saved:    ['Bookmark saved',              'بک مارک محفوظ',             'बुकमार्क सेव'],
+  bookmark_note:     ['Add a note… (optional)',      'نوٹ لکھیں… (اختیاری)',       'नोट लिखें… (वैकल्पिक)'],
+  save_bookmark:     ['Save Bookmark',               'بک مارک محفوظ کریں',        'बुकमार्क सेव करें'],
+  go_to_ayah:        ['Go to Ayah',                  'آیت پر جائیں',              'आयत पर जाएं'],
+  remove:            ['Remove',                      'ہٹائیں',                    'हटाएं'],
+
+
+  // Notifications
+  notifications:       ['Notifications',              'اطلاعات',                   'नोटिफ़िकेशन'],
+  notif_active:        ['Active ✓',                   'فعال ✓',                    'सक्रिय ✓'],
+  notif_off:           ['Off — tap to enable',        'بند — فعال کرنے کے لیے دبائیں','बंद — चालू करने के लिए टैप करें'],
+  notif_blocked:       ['Blocked in browser settings','براؤزر میں بند ہے',          'ब्राउज़र में बंद है'],
+  notif_not_supported: ['Not supported on this device','اس ڈیوائس پر دستیاب نہیں',  'इस डिवाइस पर उपलब्ध नहीं'],
+  notif_enabled:       ['Notifications enabled ✓',    'اطلاعات فعال ✓',            'नोटिफ़िकेशन चालू ✓'],
+
+  // Permission prompt
+  notif_prompt_title:  ['Stay Connected to the Qur\u2019an', 'قرآن سے جڑے رہیں',  'क़ुरआन से जुड़े रहें'],
+  notif_prompt_sub:    ['Daily reminders to read, reflect and recite', 'پڑھنے، سوچنے اور تلاوت کے لیے روزانہ یاد دہانی', 'पढ़ने, सोचने और तिलावत के लिए रोज़ाना याद दहानी'],
+  notif_prompt_aotd:   ['🌅 Ayah of the Day — a random ayah every morning', '🌅 آج کی آیت — ہر صبح ایک آیت', '🌅 आज की आयत — हर सुबह एक आयत'],
+  notif_prompt_kahf:   ["🕌 Friday Reminder — Surah Al-Kahf on Jumu'ah", "🕌 جمعہ یاد دہانی — جمعے کو سورۃ الکہف", '🕌 जुमुआ याद दहानी — जुमे को सूरह अल-कहफ़'],
+  notif_prompt_mulk:   ['🌙 Nightly Reminder — Surah Al-Mulk before sleep', '🌙 رات کی یاد دہانی — سونے سے پہلے سورۃ الملک', '🌙 रात की याद दहानी — सोने से पहले सूरह अल-मुल्क'],
+  notif_enable_btn:    ['Enable Notifications',       'اطلاعات فعال کریں',         'नोटिफ़िकेशन चालू करें'],
+  notif_later_btn:     ['Maybe Later',               'بعد میں',                   'बाद में'],
+
+  // Notification settings labels
+  notif_aotd_label:    ['Ayah of the Day',            'آج کی آیت',                 'आज की आयत'],
+  notif_kahf_label:    ["Friday Al-Kahf",             'جمعہ — الکہف',              'जुमुआ — अल-कहफ़'],
+  notif_mulk_label:    ['Nightly Al-Mulk',            'رات — الملک',               'रात — अल-मुल्क'],
+  notif_time_label:    ['Time',                       'وقت',                       'समय'],
+
+  // Status
+  loading:           ['Loading…',                    'لوڈ ہو رہا ہے…',            'लोड हो रहा है…'],
+  error_load:        ['Could not load surah. Check your connection.', 'سورۃ لوڈ نہیں ہوئی۔ انٹرنیٹ چیک کریں۔', 'सूरह लोड नहीं हुई। इंटरनेट चेक करें।'],
+  retry:             ['Retry',                       'دوبارہ کوشش کریں',          'दोबारा कोशिश करें'],
 };
 
 let currentLang = 'en';
@@ -68,9 +133,8 @@ function setLang(lang) {
     Reader._refreshTranslations();
     Reader._renderSurahHeader(Reader.state.surahNum);
   }
-  if (typeof Overview !== 'undefined') {
-    Overview.render();
-  }
+  if (typeof Overview !== 'undefined') Overview.render();
+  if (typeof Bookmarks !== 'undefined') Bookmarks.render();
 }
 
 function initI18n() {

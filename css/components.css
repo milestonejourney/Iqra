@@ -1123,3 +1123,912 @@ a:hover { color: var(--gold-light); }
   #tour-title       { font-size: 16px; }
   #tour-body        { font-size: 14px; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   V2 — OVERVIEW ADDITIONS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── View toggle (Surah / Juz) ────────────────────────────── */
+.view-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin: 16px 14px 0;
+}
+
+.view-toggle-btn {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  background: var(--bg-elevated);
+  transition: var(--transition);
+  border: none;
+}
+
+.view-toggle-btn.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+.view-toggle-btn:first-child { border-right: 1px solid var(--border); }
+
+/* ── Favourites section ───────────────────────────────────── */
+#favourites-section {
+  padding: 16px 14px 0;
+}
+
+.favourites-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.favourites-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+#favourites-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+@media (min-width: 480px) { #favourites-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 680px) { #favourites-grid { grid-template-columns: repeat(4, 1fr); } }
+
+#favourites-empty {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  padding: 12px 0 4px;
+}
+
+.all-surahs-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 16px 14px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.all-surahs-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Surah tile — V2 additions ────────────────────────────── */
+.surah-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.tile-heart {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  padding: 0 0 0 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tile-heart:hover { color: var(--gold); transform: scale(1.2); }
+.tile-heart.active { color: var(--gold); }
+.tile-heart.active::before { content: '♥'; }
+.tile-heart:not(.active)::before { content: '♡'; }
+.tile-heart { font-size: 0; }
+.tile-heart::before { font-size: 13px; }
+
+.cached-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* Juz tile */
+.juz-tile .surah-tile-arabic { font-size: 24px; }
+
+/* ══════════════════════════════════════════════════════════
+   V2 — READER ADDITIONS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Ayah num wrap — holds number + sajdah + bookmark ─────── */
+.ayah-num-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 12px 0 16px;
+  flex-shrink: 0;
+}
+
+/* Keep original ayah-number styles, just remove individual margin */
+.ayah-number { margin: 0; }
+
+/* ── Sajdah badge ─────────────────────────────────────────── */
+.sajdah-badge {
+  font-size: 12px;
+  color: var(--gold);
+  line-height: 1;
+  cursor: default;
+  opacity: 0.85;
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
+}
+
+/* ── Bookmark icon on ayah ────────────────────────────────── */
+/* Mobile: always slightly visible so users know it's there    */
+/* Desktop: hidden until hover on the ayah block, then visible */
+.ayah-bookmark-btn {
+  font-size: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+/* On touch devices — keep slightly visible for discoverability */
+@media (hover: none) {
+  .ayah-bookmark-btn { opacity: 0.3; }
+}
+
+/* On desktop — hide until ayah is hovered */
+@media (hover: hover) {
+  .ayah-bookmark-btn { opacity: 0; }
+  .ayah-block:hover .ayah-bookmark-btn { opacity: 0.55; }
+}
+
+.ayah-bookmark-btn:hover { opacity: 1 !important; transform: scale(1.15); }
+.ayah-bookmark-btn.active { opacity: 1 !important; }
+
+@media (min-width: 640px) { .ayah-num-wrap { margin: 6px 16px 0 24px; } }
+@media (min-width: 1024px){ .ayah-num-wrap { margin: 6px 22px 0 36px; } }
+@media (min-width: 1440px){ .ayah-num-wrap { margin: 6px 28px 0 52px; } }
+
+/* ── Ayah end marker — CSS circle with Arabic-Indic number ──── */
+/* Renders as a single clean gold circle containing the ayah     */
+/* number, exactly like a printed Mushaf. One glyph, one circle. */
+.ayah-end-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width:  1.35em;
+  height: 1.35em;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  font-size: 0.52em;
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  line-height: 1;
+  vertical-align: middle;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  user-select: none;
+  opacity: 0.85;
+  flex-shrink: 0;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
+  -webkit-font-smoothing: antialiased;
+  /* Subtle inner glow on dark mode */
+  box-shadow: inset 0 0 0 1px rgba(240,192,96,0.15);
+}
+
+[data-theme="dark"] .ayah-end-marker {
+  box-shadow: inset 0 0 0 1px rgba(240,192,96,0.2),
+              0 0 6px rgba(240,192,96,0.1);
+}
+
+/* ── Juz divider ─────────────────────────────────────────── */
+.juz-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px;
+  user-select: none;
+}
+
+.juz-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-strong), transparent);
+}
+
+.juz-divider-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  background: var(--gold-dim);
+  flex-shrink: 0;
+}
+
+.juz-divider-arabic {
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  font-size: 16px;
+  color: var(--gold);
+  direction: rtl;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.juz-divider-text {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ── Reading mode ─────────────────────────────────────────── */
+/* When .reading-mode is on <html>:
+   - Translations hidden
+   - Arabic centered, slightly larger
+   - Ayah number column hidden
+   - More vertical breathing room                             */
+
+.reading-mode .ayah-translation       { display: none !important; }
+.reading-mode .ayah-num-wrap          { display: none !important; }
+.reading-mode .ayah-text              { padding: 0 28px; }
+.reading-mode .ayah-arabic            { text-align: center; margin-bottom: 0; }
+.reading-mode .ayah-block             { padding: 20px 0; justify-content: center; }
+.reading-mode .bismillah-ornament     { font-size: clamp(36px, 6vw, 64px); }
+
+/* Reading mode toggle button in reader controls */
+#reading-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  transition: var(--transition);
+}
+
+#reading-mode-btn:hover  { border-color: var(--border-strong); color: var(--text-primary); }
+#reading-mode-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+.reader-controls-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px 0;
+  gap: 8px;
+}
+
+@media (min-width: 1024px) { .reader-controls-bar { padding: 10px 40px 0; } }
+
+/* ══════════════════════════════════════════════════════════
+   V2 — BOOKMARKS PAGE
+   ══════════════════════════════════════════════════════════ */
+
+#page-bookmarks {
+  padding-top: var(--nav-h);
+  padding-bottom: calc(var(--audio-bar-h) + 8px);
+  min-height: 100dvh;
+}
+
+.bookmarks-header {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bookmarks-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+.bookmarks-subtitle {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-family: system-ui, sans-serif;
+  margin-top: 4px;
+}
+
+#bookmarks-list {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.bookmark-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: var(--transition);
+  animation: ayahEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bookmark-card:hover { border-color: var(--border-strong); }
+
+.bookmark-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bookmark-ref {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bookmark-surah {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+.bookmark-sep { color: var(--text-tertiary); font-size: 12px; }
+
+.bookmark-ayah {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.bookmark-date {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.bookmark-arabic {
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  font-size: 22px;
+  line-height: 1.9;
+  color: var(--text-arabic);
+  direction: rtl;
+  text-align: right;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bookmark-note {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding: 10px 12px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--gold);
+  font-style: italic;
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.bookmark-goto-btn {
+  padding: 7px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  transition: var(--transition);
+}
+
+.bookmark-goto-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.bookmark-delete-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: var(--transition);
+}
+
+.bookmark-delete-btn:hover { border-color: #e05b50; color: #e05b50; }
+
+.bookmarks-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.bookmarks-empty-icon { font-size: 40px; }
+
+.bookmarks-empty-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.bookmarks-empty-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* ── Bookmark sheet ───────────────────────────────────────── */
+#bookmark-sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 450;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#bookmark-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 24px 20px 32px;
+  z-index: 451;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#bookmark-sheet.open,
+#bookmark-sheet.open ~ #bookmark-sheet-backdrop { transform: translateY(0); }
+#bookmark-sheet.open ~ #bookmark-sheet-backdrop { opacity: 1; visibility: visible; }
+
+/* Fix: backdrop needs to be before sheet in DOM order for ~ selector */
+#bookmark-sheet-backdrop.open { opacity: 1; visibility: visible; }
+#bookmark-sheet.open { transform: translateY(0); }
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 0 auto -8px;
+}
+
+.sheet-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+#bookmark-note-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  resize: none;
+  min-height: 90px;
+  transition: border-color 0.2s ease;
+}
+
+#bookmark-note-input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px rgba(240,192,96,0.12); }
+#bookmark-note-input::placeholder { color: var(--text-tertiary); }
+
+.sheet-actions { display: flex; gap: 10px; }
+
+.sheet-save-btn {
+  flex: 1;
+  padding: 13px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  transition: var(--transition);
+  text-align: center;
+}
+
+.sheet-save-btn:hover { background: var(--gold); color: var(--bg-base); }
+
+.sheet-cancel-btn {
+  padding: 13px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.sheet-cancel-btn:hover { border-color: var(--border-strong); }
+
+/* ══════════════════════════════════════════════════════════
+   V2 — SETTINGS ADDITIONS
+   ══════════════════════════════════════════════════════════ */
+
+/* Reciter buttons — stack vertically for readability */
+.reciter-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reciter-btn {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  transition: var(--transition);
+  font-family: 'Crimson Pro', serif;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reciter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.reciter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+.reciter-check { font-size: 12px; opacity: 0; }
+.reciter-btn.active .reciter-check { opacity: 1; }
+
+/* Download progress bar */
+#download-progress {
+  display: none;
+  margin-top: 8px;
+}
+
+.download-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+#download-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+#download-label {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+#storage-usage {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  letter-spacing: 0.03em;
+}
+
+/* ══════════════════════════════════════════════════════════
+   V2 — TOAST
+   ══════════════════════════════════════════════════════════ */
+
+#app-toast {
+  position: fixed;
+  bottom: calc(var(--audio-bar-h) + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  z-index: 600;
+  white-space: nowrap;
+}
+
+#app-toast.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ══════════════════════════════════════════════════════════
+   NOTIFICATIONS
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Permission prompt modal ─────────────────────────────── */
+#notif-permission-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 500;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 20px;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#notif-permission-modal.open {
+  opacity: 1; visibility: visible;
+}
+
+.notif-prompt-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card), 0 0 60px rgba(240,192,96,0.08);
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: sheetRise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  margin-bottom: 8px;
+}
+
+@keyframes sheetRise {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.notif-prompt-icon {
+  font-size: 40px;
+  text-align: center;
+  line-height: 1;
+}
+
+.notif-prompt-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.notif-prompt-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+  line-height: 1.6;
+  margin-top: -6px;
+}
+
+.notif-prompt-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.notif-prompt-feature {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.notif-prompt-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notif-enable-btn {
+  padding: 14px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  transition: var(--transition);
+  text-align: center;
+}
+
+.notif-enable-btn:hover { background: var(--gold); color: var(--bg-base); }
+
+.notif-later-btn {
+  padding: 12px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-tertiary);
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.notif-later-btn:hover { color: var(--text-secondary); }
+
+/* ── Notification settings section ───────────────────────── */
+.notif-status {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.notif-active    { background: rgba(58,125,123,0.15); color: var(--teal-light); }
+.notif-off       { background: var(--bg-elevated);    color: var(--text-tertiary); cursor: pointer; }
+.notif-blocked   { background: rgba(224,91,80,0.12);  color: #e05b50; }
+.notif-unsupported{ background: var(--bg-elevated);   color: var(--text-tertiary); }
+
+/* Notification row — toggle + label + time */
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.notif-row:last-child { border-bottom: none; }
+
+.notif-row-info { flex: 1; min-width: 0; }
+
+.notif-row-label {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  display: block;
+  line-height: 1.3;
+}
+
+.notif-row-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.notif-time-label {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notif-time-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+  width: 80px;
+}
+
+.notif-time-input:focus   { border-color: var(--gold); outline: none; }
+.notif-time-input:disabled{ opacity: 0.4; cursor: not-allowed; }
+
+/* Toggle switch */
+.notif-toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+
+.notif-toggle input {
+  opacity: 0; width: 0; height: 0;
+  position: absolute;
+}
+
+.notif-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.notif-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 2px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--text-tertiary);
+  border-radius: 50%;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.notif-toggle input:checked + .notif-toggle-slider {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+
+.notif-toggle input:checked + .notif-toggle-slider::before {
+  transform: translateX(20px) translateY(-50%);
+  background: var(--gold);
+}
+
+.notif-toggle input:disabled + .notif-toggle-slider {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -1,5 +1,5 @@
 // ============================================================
-// APP.JS — Iqra Qur'an Reader
+// APP.JS — Iqra V2
 // ============================================================
 
 function showPage(pageName) {
@@ -13,55 +13,71 @@ function showPage(pageName) {
     btn.classList.toggle('active-page', btn.getAttribute('data-page') === pageName);
   });
 
-  if (pageName === 'overview') Overview.render();
+  if (pageName === 'overview')   Overview.render();
+  if (pageName === 'bookmarks')  Bookmarks.render();
+  if (pageName === 'reader' && Reader.state.ayahs.length === 0) Reader.init();
+}
+
+// Toast notification
+function showToast(msg) {
+  let toast = document.getElementById('app-toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2800);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // 1. Apply persisted preferences — no flash
-  initTheme();
   initI18n();
+  initTheme();
+  Offline.updateStorageDisplay();
 
-  // 2. Show overview first
   showPage('overview');
-
-  // 3. Init reader
   await Reader.init();
 
-  // 4. Auto-show tour on first visit
+  // Init notifications — checks permission, reschedules active ones
+  await Notifications.init();
+
+  // Handle tap on a notification (URL params)
+  Notifications.handleNotifClick();
+
   if (Tour.shouldAutoShow()) {
     setTimeout(() => Tour.open(), 800);
   }
 
-  // 5. Keyboard shortcuts
+  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT') return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.key === ' ' || e.key === 'k') { e.preventDefault(); Reader.toggleSurahPlay(); }
     if (e.key === 'ArrowRight') nextSurah();
     if (e.key === 'ArrowLeft')  prevSurah();
+    if (e.key === 'r') toggleReadingMode();
     if (e.key === 'Escape') {
       closeSurahSelector();
       closeSettings();
       Tour.close();
+      Bookmarks.closeSheet();
     }
   });
 
-  // 6. Close modals on backdrop click
-  document.getElementById('surah-modal').addEventListener('click', e => {
+  document.getElementById('surah-modal')?.addEventListener('click', e => {
     if (e.target === document.getElementById('surah-modal')) closeSurahSelector();
   });
 
-  // 7. Surah search
-  document.getElementById('surah-search').addEventListener('input', e => {
+  document.getElementById('bookmark-sheet-backdrop')?.addEventListener('click', () => {
+    Bookmarks.closeSheet();
+  });
+
+  document.getElementById('surah-search')?.addEventListener('input', e => {
     renderSurahList(e.target.value);
   });
 
-  // 8. Ayah goto — enter key
   document.getElementById('ayah-goto-input')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') gotoAyah();
   });
 
-  // 9. Tour swipe support (touch)
+  // Tour swipe
   let _tourTouchX = null;
   document.getElementById('tour-card')?.addEventListener('touchstart', e => {
     _tourTouchX = e.touches[0].clientX;
@@ -69,11 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tour-card')?.addEventListener('touchend', e => {
     if (_tourTouchX === null) return;
     const diff = _tourTouchX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) Tour.next();
-      else Tour.prev();
-    }
+    if (Math.abs(diff) > 50) { diff > 0 ? Tour.next() : Tour.prev(); }
     _tourTouchX = null;
   }, { passive: true });
-
 });
