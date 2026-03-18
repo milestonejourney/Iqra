@@ -13,9 +13,26 @@ function showPage(pageName) {
     btn.classList.toggle('active-page', btn.getAttribute('data-page') === pageName);
   });
 
+  // Save reader position whenever navigating away
+  if (pageName !== 'reader' && typeof Reader !== 'undefined') {
+    if (Reader.state.surahNum && Reader.state.currentAyah) {
+      saveLastSurah(Reader.state.surahNum);
+      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
+    }
+  }
+
   if (pageName === 'overview')   Overview.render();
   if (pageName === 'bookmarks')  Bookmarks.render();
-  if (pageName === 'reader' && Reader.state.ayahs.length === 0) Reader.init();
+  if (pageName === 'reader') {
+    if (Reader.state.ayahs.length === 0) {
+      Reader.init(); // first load
+    } else {
+      // Already loaded — just scroll to saved position
+      requestAnimationFrame(() => {
+        Reader._scrollToAyah(Reader.state.currentAyah, 'instant');
+      });
+    }
+  }
 }
 
 // Toast notification
@@ -33,8 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   Offline.updateStorageDisplay();
 
-  showPage('overview');
+  // Init reader silently in background — no scroll yet (page is hidden)
   await Reader.init();
+
+  // NOW show overview — Reader.state.surahNum is correct, tile will highlight
+  showPage('overview');
 
   // Init notifications — checks permission, reschedules active ones
   await Notifications.init();
@@ -75,6 +95,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('ayah-goto-input')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') gotoAyah();
+  });
+
+  // ── Ayah position tracker ────────────────────────────────
+  // touchend is most reliable on mobile PWA for detecting
+  // which ayah the user is currently reading
+  document.addEventListener('touchend', () => {
+    if (!document.getElementById('page-reader')?.classList.contains('active')) return;
+    const mid = window.innerHeight / 2;
+    const blocks = document.querySelectorAll('.ayah-block');
+    let best = null, bestDist = Infinity;
+    blocks.forEach(b => {
+      const rect = b.getBoundingClientRect();
+      if (rect.bottom > 0 && rect.top < window.innerHeight) {
+        const dist = Math.abs(rect.top + rect.height / 2 - mid);
+        if (dist < bestDist) { bestDist = dist; best = b; }
+      }
+    });
+    if (best) Reader.state.currentAyah = parseInt(best.dataset.num);
+  }, { passive: true });
+
+  // Also track on scroll for desktop
+  let _scrollTimer = null;
+  window.addEventListener('scroll', () => {
+    if (!document.getElementById('page-reader')?.classList.contains('active')) return;
+    clearTimeout(_scrollTimer);
+    _scrollTimer = setTimeout(() => {
+      const mid = window.innerHeight / 2;
+      const blocks = document.querySelectorAll('.ayah-block');
+      let best = null, bestDist = Infinity;
+      blocks.forEach(b => {
+        const rect = b.getBoundingClientRect();
+        const dist = Math.abs(rect.top + rect.height / 2 - mid);
+        if (dist < bestDist) { bestDist = dist; best = b; }
+      });
+      if (best) Reader.state.currentAyah = parseInt(best.dataset.num);
+    }, 150);
+  }, { passive: true });
+
+  // Save position when app backgrounds or closes
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' &&
+        Reader.state.surahNum && Reader.state.currentAyah) {
+      saveLastSurah(Reader.state.surahNum);
+      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    if (Reader.state.surahNum && Reader.state.currentAyah) {
+      saveLastSurah(Reader.state.surahNum);
+      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
+    }
   });
 
   // Tour swipe

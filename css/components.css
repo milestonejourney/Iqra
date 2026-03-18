@@ -443,9 +443,12 @@ a:hover { color: var(--gold-light); }
 .ayah-text { flex: 1; padding-right: 20px; min-width: 0; }
 
 .ayah-arabic {
-  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  /* Font family is set by data-script in design-system.css */
+  /* Default (indopak): IndoPak Nastaleeq → Noto Nastaliq Urdu fallback */
+  /* Uthmani: KFGQPC Uthmanic Script HAFS                               */
+  font-family: 'IndoPak Nastaleeq', 'Noto Nastaliq Urdu', 'KFGQPC Uthmanic Script HAFS', serif;
   font-size: var(--sz-arabic);
-  line-height: 2.2;
+  line-height: 2.6;
   color: var(--text-arabic);
   direction: rtl;
   text-align: right;
@@ -455,6 +458,11 @@ a:hover { color: var(--gold-light); }
   text-rendering: optimizeLegibility;
   font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
   -webkit-font-smoothing: antialiased;
+}
+
+[data-script="uthmani"] .ayah-arabic {
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  line-height: 2.2;
 }
 
 [data-theme="dark"] .ayah-arabic { text-shadow: 0 0 40px rgba(245,240,232,0.04); }
@@ -1318,6 +1326,7 @@ a:hover { color: var(--gold-light); }
 /* Desktop: hidden until hover on the ayah block, then visible */
 .ayah-bookmark-btn {
   font-size: 13px;
+  font-family: system-ui, sans-serif; /* never inherit Arabic font — emoji must render correctly */
   background: none;
   border: none;
   cursor: pointer;
@@ -1346,38 +1355,24 @@ a:hover { color: var(--gold-light); }
 @media (min-width: 1024px){ .ayah-num-wrap { margin: 6px 22px 0 36px; } }
 @media (min-width: 1440px){ .ayah-num-wrap { margin: 6px 28px 0 52px; } }
 
-/* ── Ayah end marker — CSS circle with Arabic-Indic number ──── */
-/* Renders as a single clean gold circle containing the ayah     */
-/* number, exactly like a printed Mushaf. One glyph, one circle. */
+/* ── Ayah end marker ۝ — gold Arabic-Indic number, no circle ── */
+/* Floats inline after the ayah text in gold, no border/circle.  */
+/* Uses KFGQPC font so numerals render correctly in both scripts. */
 .ayah-end-marker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width:  1.35em;
-  height: 1.35em;
-  border-radius: 50%;
-  border: 1.5px solid var(--gold);
+  display: inline;
   color: var(--gold);
-  font-size: 0.52em;
-  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif;
+  font-size: 0.6em;
+  font-family: 'KFGQPC Uthmanic Script HAFS', 'Noto Naskh Arabic', serif !important;
   line-height: 1;
   vertical-align: middle;
-  margin-right: 2px;
-  margin-bottom: 2px;
+  margin-left: 4px;
   user-select: none;
-  opacity: 0.85;
-  flex-shrink: 0;
+  opacity: 0.9;
   text-rendering: optimizeLegibility;
   font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
   -webkit-font-smoothing: antialiased;
-  /* Subtle inner glow on dark mode */
-  box-shadow: inset 0 0 0 1px rgba(240,192,96,0.15);
 }
 
-[data-theme="dark"] .ayah-end-marker {
-  box-shadow: inset 0 0 0 1px rgba(240,192,96,0.2),
-              0 0 6px rgba(240,192,96,0.1);
-}
 
 /* ── Juz divider ─────────────────────────────────────────── */
 .juz-divider {

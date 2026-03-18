@@ -12,7 +12,7 @@
 //   Audio MP3s  → Cache First (replay without re-downloading)
 // ============================================================
 
-const APP_VERSION = 'iqra-v3.4';
+const APP_VERSION = 'iqra-v5.2';
 const SHELL_CACHE = APP_VERSION + '-shell';
 const API_CACHE   = APP_VERSION + '-api';
 const AUDIO_CACHE = APP_VERSION + '-audio';
@@ -41,6 +41,7 @@ const SHELL_FILES = [
   './js/pages/bookmarks.js',
   './js/pages/tour.js',
   './fonts/KFGQPCUthmanicScriptHAFS.woff2',
+  './fonts/IndoPakNastaleeq.woff2',
   './icons/logo-iqra.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -92,6 +93,8 @@ self.addEventListener('fetch', event => {
     event.respondWith(cacheFirst(request, SHELL_CACHE));
     return;
   }
+
+
 
   // App shell (same origin) — cache first
   if (url.origin === self.location.origin) {

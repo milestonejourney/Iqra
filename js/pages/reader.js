@@ -31,6 +31,11 @@ const Reader = {
 
   async loadSurah(num, startAyah) {
     if (num < 1 || num > 114) return;
+    // Save current position before switching to a new surah
+    if (this.state.surahNum && this.state.currentAyah) {
+      saveLastSurah(this.state.surahNum);
+      saveLastAyah(this.state.surahNum, this.state.currentAyah);
+    }
     this._stopAudio();
     this.state.surahNum = num;
     this.state.loading  = true;
@@ -154,19 +159,35 @@ const Reader = {
     const textDiv = document.createElement('div');
     textDiv.className = 'ayah-text';
 
-    // Arabic with ۝ ayah marker appended
+    // Arabic text — use indopak text + font when script=indopak,
+    // uthmani text + KFGQPC font otherwise.
+    const script = document.documentElement.getAttribute('data-script') || 'indopak';
+    let arabicText = (script === 'indopak' && ayah.arabic_indopak)
+      ? ayah.arabic_indopak
+      : ayah.arabic;
+
+    // Strip end-of-ayah and waqf markers from indopak_nastaleeq API text.
+    // The API uses U+06DF (۟) as end marker, sometimes followed by
+    // U+0615 (ؕ waqf lazim), U+065A (ٚ), and other pause signs U+06D6-U+06DC.
+    // We render our own styled ⊙ marker so strip all of these.
+    arabicText = arabicText
+      .replace(/[\u06DF\u06D6-\u06DC\u065A\u06E9]+$/g, '') // strip end markers
+      .replace(/\u06DD[\u0660-\u0669\u06F0-\u06F9]*/g, '')  // strip U+06DD ayah marker
+      .replace(/[\uF500-\uF5FF]/g, '')  // strip ALL PUA glyphs — white circles, ornaments
+      .trim();
+
     const arabicEl = document.createElement('div');
     arabicEl.className = 'ayah-arabic';
     arabicEl.setAttribute('lang', 'ar');
     arabicEl.setAttribute('dir', 'rtl');
-    // Append ۝ end-of-ayah marker with ayah number inside
-    // Ayah end marker: styled circle with Arabic-Indic number inside
-    // Using a CSS-styled span rather than U+06DD to avoid double-glyph rendering
+
     const markerSpan = document.createElement('span');
     markerSpan.className = 'ayah-end-marker';
     markerSpan.setAttribute('aria-hidden', 'true');
     markerSpan.textContent = this._toArabicNumerals(ayah.num);
-    arabicEl.textContent = ayah.arabic + ' ';
+
+    // Marker inline at the START of the text (RTL: visually on the right)
+    arabicEl.appendChild(document.createTextNode(arabicText));
     arabicEl.appendChild(markerSpan);
     textDiv.appendChild(arabicEl);
 
@@ -182,7 +203,9 @@ const Reader = {
     let _pressTimer = null;
     div.addEventListener('touchstart', () => {
       _pressTimer = setTimeout(() => {
-        Bookmarks.openSheet(this.state.surahNum, ayah.num, ayah.arabic);
+        const _bScript = document.documentElement.getAttribute('data-script') || 'indopak';
+      const _bText = (_bScript === 'indopak' && ayah.arabic_indopak) ? ayah.arabic_indopak : ayah.arabic;
+      Bookmarks.openSheet(this.state.surahNum, ayah.num, _bText);
       }, 600);
     }, { passive: true });
     div.addEventListener('touchend',   () => clearTimeout(_pressTimer), { passive: true });

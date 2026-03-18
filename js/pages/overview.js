@@ -12,7 +12,14 @@ const Overview = {
     this._renderToggle(mode);
     this._renderFavourites();
     if (mode === 'juz') this._renderJuzGrid();
-    else                this._renderSurahGrid();
+    else {
+      this._renderSurahGrid();
+      // After render, scroll the current surah tile into view
+      requestAnimationFrame(() => {
+        const tile = document.querySelector('#overview-grid .surah-tile.current');
+        if (tile) tile.scrollIntoView({ behavior: 'instant', block: 'center' });
+      });
+    }
   },
 
   _renderToggle(mode) {

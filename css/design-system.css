@@ -17,6 +17,17 @@
   font-display: block;
 }
 
+/* IndoPak Nastaleeq — self-hosted, v2.6554, 77KB                 */
+/* indopak-nastaleeq-waqf-lazim: full waqf/lazim/tajweed coverage */
+/* Paired with text_indopak_nastaleeq from the dedicated endpoint  */
+@font-face {
+  font-family: 'IndoPak Nastaleeq';
+  src: url('../fonts/IndoPakNastaleeq.woff2') format('woff2');
+  font-weight: normal;
+  font-style:  normal;
+  font-display: block;
+}
+
 /* ── Dark mode (default) ──────────────────────────────────── */
 :root {
   --bg-base:        #0D0F14;
@@ -107,6 +118,33 @@
   text-rendering: optimizeLegibility;
   font-feature-settings: "calt" 1, "liga" 1, "rlig" 1, "mset" 1;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Script switching — data-script="indopak" | "uthmani" ── */
+/* Default (indopak) → IndoPak Nastaleeq waqf-lazim v4.2.1   */
+.ayah-arabic,
+.bismillah-ornament,
+.surah-name-arabic,
+.surah-item-arabic,
+.nav-surah-arabic,
+.overview-surah-arabic {
+  font-family: 'IndoPak Nastaleeq', 'Noto Nastaliq Urdu', 'KFGQPC Uthmanic Script HAFS', serif;
+}
+
+/* IndoPak Nastaleeq needs more line height (stacked glyphs) */
+.ayah-arabic {
+  line-height: 2.6;
+}
+
+/* Uthmani → KFGQPC, tighter line height */
+[data-script="uthmani"] .ayah-arabic,
+[data-script="uthmani"] .bismillah-ornament,
+[data-script="uthmani"] .surah-name-arabic,
+[data-script="uthmani"] .surah-item-arabic,
+[data-script="uthmani"] .nav-surah-arabic,
+[data-script="uthmani"] .overview-surah-arabic {
+  font-family: 'KFGQPC Uthmanic Script HAFS', serif;
+  line-height: 2.2;
 }
 
 /* ── Translation font + direction per language ────────────── */

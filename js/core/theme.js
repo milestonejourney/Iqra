@@ -50,10 +50,24 @@ function setReciter(id) {
   });
 }
 
+function setScript(script) {
+  document.documentElement.setAttribute('data-script', script);
+  saveScript(script);
+  document.querySelectorAll('[data-script-btn]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-script-btn') === script);
+  });
+  // Re-render if reader is loaded
+  if (typeof Reader !== 'undefined' && Reader.state.ayahs.length) {
+    Reader.renderAyahs();
+    Reader._scrollToAyah(Reader.state.currentAyah, 'instant');
+  }
+}
+
 function initTheme() {
   setTheme(loadTheme());
   setArabicSize(loadArabicSize());
   setTransSize(loadTransSize());
+  setScript(loadScript());
   setReadingMode(loadReadingMode());
   // Mark active reciter button
   const rid = loadReciter();

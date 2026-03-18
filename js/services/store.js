@@ -37,6 +37,10 @@ function saveReciter(id)       { _set('reciter', id); }
 
 // ── Reading mode ──────────────────────────────────────────
 function loadReadingMode()     { return _get('reading_mode') === '1'; }
+
+// ── Script (IndoPak / Uthmani) ────────────────────────────
+function loadScript()       { return _get('script') || 'indopak'; }  // IndoPak default
+function saveScript(s)      { _set('script', s); }
 function saveReadingMode(on)   { _set('reading_mode', on ? '1' : '0'); }
 
 // ── Overview view mode: 'surah' | 'juz' ──────────────────
