@@ -42,8 +42,9 @@ const Notifications = {
     const opens = parseInt(_get('app_opens') || '0') + 1;
     _set('app_opens', opens);
 
-    // Show permission prompt on 3rd open if not yet decided
-    if (opens === 3 && this.permission === 'default') {
+    // Show permission prompt if permission not yet decided
+    // Show on every open until user makes a decision
+    if (this.permission === 'default' && opens >= 2) {
       setTimeout(() => this.showPermissionPrompt(), 1500);
     }
 
@@ -295,6 +296,27 @@ const Notifications = {
         if (type === 'mulk') await this._scheduleMulk(sw);
       }
     }
+  },
+
+  // ── Send a test notification immediately ─────────────────
+  async testNotification() {
+    if (!this.isGranted) {
+      await this.requestPermission();
+      return;
+    }
+    const sw = await this._getSW();
+    if (!sw) { showToast('SW not ready — try again'); return; }
+    sw.postMessage({
+      type:      'SCHEDULE_NOTIFICATION',
+      notifType: 'test',
+      delay:     3000, // 3 seconds
+      title:     'Iqra ✓',
+      body:      'Notifications are working!',
+      data:      { surah: 1, ayah: 1 },
+      icon:      './icons/icon-192.png',
+      badge:     './icons/favicon-32.png',
+    });
+    showToast('Test notification in 3 seconds…');
   },
 
   // ── Handle notification click (from URL param) ────────────

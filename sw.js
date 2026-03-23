@@ -12,7 +12,7 @@
 //   Audio MP3s  → Cache First (replay without re-downloading)
 // ============================================================
 
-const APP_VERSION = 'iqra-v5.2';
+const APP_VERSION = 'iqra-v6.3';
 const SHELL_CACHE = APP_VERSION + '-shell';
 const API_CACHE   = APP_VERSION + '-api';
 const AUDIO_CACHE = APP_VERSION + '-audio';
@@ -39,6 +39,7 @@ const SHELL_FILES = [
   './js/pages/overview.js',
   './js/pages/reader.js',
   './js/pages/bookmarks.js',
+  './js/pages/profile.js',
   './js/pages/tour.js',
   './fonts/KFGQPCUthmanicScriptHAFS.woff2',
   './fonts/IndoPakNastaleeq.woff2',
@@ -152,11 +153,6 @@ function offlineFallback(request) {
   return new Response('Offline', { status: 503 });
 }
 
-// ── Skip waiting — activate new SW immediately ─────────────
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
-});
-
 // ============================================================
 // NOTIFICATIONS — Service Worker side
 //
@@ -197,43 +193,50 @@ function _scheduleNotification(msg) {
 
   if (delay < 0) return; // already passed — skip
 
+  // Store the full message in case SW restarts before firing
+  // (SW restarts wipe setTimeout — we use this to reschedule)
+  _notifTimers[notifType + '_msg'] = msg;
+  _notifTimers[notifType + '_fireAt'] = Date.now() + delay;
+
   // Cap at 24h + 1min to avoid timer precision issues on long delays
   const safeDelay = Math.min(delay, 24 * 60 * 60 * 1000 + 60000);
 
-  _notifTimers[notifType] = setTimeout(async () => {
-    try {
-      let title, body;
+  _notifTimers[notifType] = setTimeout(() => _fireNotification(msg), safeDelay);
+}
 
-      if (msg.fetchAyah) {
-        // Fetch the ayah text at fire time for a rich notification
-        const result = await _fetchAyahForNotif(
-          msg.surahNum, msg.ayahNum, msg.lang,
-          msg.surahName, msg.surahNameUr, msg.surahNameHi
-        );
-        title = result.title;
-        body  = result.body;
-      } else {
-        title = msg.title;
-        body  = msg.body;
-      }
+async function _fireNotification(msg) {
+  const { notifType, data, icon, badge } = msg;
+  try {
+    let title, body;
 
-      await self.registration.showNotification(title, {
-        body,
-        icon:     icon  || './icons/icon-192.png',
-        badge:    badge || './icons/favicon-32.png',
-        tag:      'iqra-' + notifType,  // replaces previous of same type
-        renotify: false,
-        vibrate:  [200, 100, 200],
-        data:     data || {},
-        actions: [
-          { action: 'open',    title: 'Open Iqra' },
-          { action: 'dismiss', title: 'Dismiss'   },
-        ],
-      });
-    } catch(e) {
-      console.warn('Iqra: notification failed', e);
+    if (msg.fetchAyah) {
+      const result = await _fetchAyahForNotif(
+        msg.surahNum, msg.ayahNum, msg.lang,
+        msg.surahName, msg.surahNameUr, msg.surahNameHi
+      );
+      title = result.title;
+      body  = result.body;
+    } else {
+      title = msg.title;
+      body  = msg.body;
     }
-  }, safeDelay);
+
+    await self.registration.showNotification(title, {
+      body,
+      icon:     icon  || './icons/icon-192.png',
+      badge:    badge || './icons/favicon-32.png',
+      tag:      'iqra-' + notifType,
+      renotify: false,
+      vibrate:  [200, 100, 200],
+      data:     data || {},
+      actions: [
+        { action: 'open',    title: 'Open Iqra' },
+        { action: 'dismiss', title: 'Dismiss'   },
+      ],
+    });
+  } catch(e) {
+    console.warn('Iqra: notification failed', e);
+  }
 }
 
 // ── Fetch ayah text for the Ayah of the Day notification ──
@@ -291,8 +294,7 @@ async function _fetchAyahForNotif(surahNum, ayahNum, lang, nameEn, nameUr, nameH
       : translation;
 
     // Body: Arabic on first line, translation on second
-    const body = arabicShort + '
-' + transShort;
+    const body = arabicShort + '\n' + transShort;
 
     return { title, body };
 

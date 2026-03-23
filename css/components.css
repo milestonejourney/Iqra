@@ -147,7 +147,7 @@ a:hover { color: var(--gold-light); }
 
 .bnb-icon { font-size: 18px; line-height: 1; }
 .bnb-label {
-  font-size: 10px;
+  font-size: 15px;
   font-family: 'Cinzel', serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -273,7 +273,7 @@ a:hover { color: var(--gold-light); }
 
 .surah-tile-num {
   font-family: system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-tertiary);
   letter-spacing: 0.04em;
@@ -295,7 +295,7 @@ a:hover { color: var(--gold-light); }
 
 .surah-tile-name {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
   line-height: 1.3;
@@ -306,7 +306,7 @@ a:hover { color: var(--gold-light); }
 }
 
 .surah-tile-meta {
-  font-size: 10px;
+  font-size: 11px;
   font-family: system-ui, sans-serif;
   color: var(--text-tertiary);
   letter-spacing: 0.03em;
@@ -367,8 +367,8 @@ a:hover { color: var(--gold-light); }
 
 #surah-name   { font-family: 'Cinzel', serif; font-size: 17px; color: var(--text-primary); letter-spacing: 0.06em; display: block; }
 #surah-meaning{ font-family: 'Cormorant Garamond', serif; font-size: 14px; color: var(--text-secondary); font-style: italic; display: block; margin-top: 2px; }
-#surah-meta   { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; display: block; }
-#surah-counter{ font-family: system-ui, sans-serif; font-size: 10px; color: var(--text-tertiary); margin-top: 3px; display: block; letter-spacing: 0.04em; }
+#surah-meta   { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; display: block; }
+#surah-counter{ font-family: system-ui, sans-serif; font-size: 12px; color: var(--text-tertiary); margin-top: 3px; display: block; letter-spacing: 0.04em; }
 
 /* ── Bismillah ────────────────────────────────────────────── */
 .bismillah-ornament {
@@ -571,7 +571,7 @@ a:hover { color: var(--gold-light); }
 #settings-panel {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: 300px;
+  width: 340px;
   background: var(--bg-surface);
   border-left: 1px solid var(--border-strong);
   box-shadow: -8px 0 40px rgba(0,0,0,0.4);
@@ -612,7 +612,7 @@ a:hover { color: var(--gold-light); }
 
 .settings-section-title {
   font-family: system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-tertiary);
@@ -622,10 +622,10 @@ a:hover { color: var(--gold-light); }
 .settings-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .settings-btn {
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   background: var(--bg-elevated);
   transition: var(--transition);
@@ -642,10 +642,10 @@ a:hover { color: var(--gold-light); }
 }
 
 .size-btn {
-  padding: 7px 4px;
+  padding: 9px 4px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   background: var(--bg-elevated);
   transition: var(--transition);
@@ -898,9 +898,15 @@ a:hover { color: var(--gold-light); }
 /* Nav tab buttons — fixed, compact on small screens */
 .bottom-nav-btn {
   flex: 0 0 auto;
-  min-width: 52px;
-  max-width: 72px;
-  padding: 8px 4px;
+  min-width: 60px;
+  max-width: 88px;
+  padding: 8px 6px;
+}
+
+/* Desktop — labels can be smaller since mouse users don't need large targets */
+@media (min-width: 640px) {
+  .bnb-label { font-size: 11px; }
+  .bottom-nav-btn { min-width: 52px; max-width: 72px; }
 }
 
 /* Audio bar fills remaining space but never forces overflow */
@@ -1738,10 +1744,10 @@ a:hover { color: var(--gold-light); }
 }
 
 .reciter-btn {
-  padding: 10px 14px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
   background: var(--bg-elevated);
   transition: var(--transition);
@@ -1755,7 +1761,7 @@ a:hover { color: var(--gold-light); }
 .reciter-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
 .reciter-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
 
-.reciter-check { font-size: 12px; opacity: 0; }
+.reciter-check { font-size: 14px; opacity: 0; }
 .reciter-btn.active .reciter-check { opacity: 1; }
 
 /* Download progress bar */
@@ -1939,6 +1945,24 @@ a:hover { color: var(--gold-light); }
 .notif-later-btn:hover { color: var(--text-secondary); }
 
 /* ── Notification settings section ───────────────────────── */
+.notif-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.notif-test-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.notif-test-btn:hover { border-color: var(--gold); color: var(--gold); }
+
 .notif-status {
   font-family: system-ui, sans-serif;
   font-size: 11px;
@@ -1969,7 +1993,7 @@ a:hover { color: var(--gold-light); }
 
 .notif-row-label {
   font-family: 'Crimson Pro', serif;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text-primary);
   display: block;
   line-height: 1.3;
@@ -2052,3 +2076,428 @@ a:hover { color: var(--gold-light); }
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ══════════════════════════════════════════════════════════
+   PROFILE — Settings section + Setup modal
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Profile card in settings ────────────────────────────── */
+.profile-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Name row */
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-name-input {
+  flex: 1;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 16px;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+  min-width: 0;
+}
+.profile-name-input:focus { border-color: var(--gold); outline: none; }
+.profile-name-input::placeholder { color: var(--text-tertiary); }
+
+.profile-name-save {
+  width: 36px; height: 36px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-name-save:hover { background: var(--gold); color: var(--bg-base); }
+
+/* Greeting */
+.profile-greeting {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+/* Stats */
+.profile-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.profile-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.profile-stat-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+
+.profile-stat-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.profile-stat-text > span:first-child {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-stat-label {
+  font-family: system-ui, sans-serif;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Goal section ────────────────────────────────────────── */
+.profile-goal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-goal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.profile-goal-input-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-goal-sep {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.profile-number-input-sm {
+  width: 44px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 6px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+}
+.profile-number-input-sm:focus { border-color: var(--gold); outline: none; }
+
+.profile-select-sm {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 6px;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+}
+.profile-select-sm:focus { border-color: var(--gold); outline: none; }
+
+.profile-goal-set {
+  padding: 5px 10px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.profile-goal-set:hover { background: var(--gold); color: var(--bg-base); }
+
+.profile-ach-title {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ── Goal progress bar ───────────────────────────────────── */
+.profile-goal-section { }
+
+.profile-goal-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.profile-goal-bar {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.profile-goal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-goal-label {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.profile-goal-badge {
+  font-size: 18px;
+  animation: badgePop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes badgePop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ── Achievements grid ───────────────────────────────────── */
+.profile-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ach-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 64px;
+  transition: var(--transition);
+}
+
+.ach-badge.earned {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+
+.ach-badge.locked {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.ach-icon { font-size: 20px; line-height: 1; }
+
+.ach-label {
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 64px;
+}
+
+.ach-badge.earned .ach-label { color: var(--gold); }
+
+/* ── Profile inputs ──────────────────────────────────────── */
+.profile-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-text-input {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 16px;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.profile-text-input:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.profile-text-input::placeholder { color: var(--text-tertiary); }
+
+.profile-goal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.profile-number-input {
+  width: 56px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.profile-number-input:focus { border-color: var(--gold); outline: none; }
+
+.profile-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease;
+}
+
+.profile-select:focus { border-color: var(--gold); outline: none; }
+
+.profile-save-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.profile-save-btn:hover { background: var(--gold); color: var(--bg-base); }
+
+/* ── First-time setup modal ──────────────────────────────── */
+.profile-setup-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.profile-setup-backdrop.open {
+  opacity: 1; visibility: visible;
+}
+
+.profile-setup-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 8px;
+  animation: sheetRise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.setup-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.setup-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+  margin-top: -12px;
+}
+
+.setup-field { display: flex; flex-direction: column; gap: 8px; }
+
+.setup-start-btn {
+  padding: 14px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  transition: var(--transition);
+  text-align: center;
+}
+
+.setup-start-btn:hover { background: var(--gold); color: var(--bg-base); }
+
+.setup-skip-btn {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text-tertiary);
+  text-align: center;
+  transition: color 0.2s ease;
+  padding: 4px;
+}
+
+.setup-skip-btn:hover { color: var(--text-secondary); }

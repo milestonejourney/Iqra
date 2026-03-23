@@ -165,6 +165,66 @@
     <button class="nav-icon-btn" onclick="closeSettings()" aria-label="Close">✕</button>
   </div>
 
+  <!-- Profile Card — name, goal, streak, achievements all in one clean card -->
+  <div class="profile-card">
+
+    <!-- Name row at top -->
+    <div class="profile-name-row">
+      <input type="text" id="profile-name-input" class="profile-name-input"
+             placeholder="Your name…" maxlength="30"
+             onkeydown="if(event.key==='Enter') Profile.saveName()">
+      <button class="profile-name-save" onclick="Profile.saveName()">✓</button>
+    </div>
+
+    <!-- Greeting -->
+    <div class="profile-greeting" id="profile-greeting">Assalamu Alaikum</div>
+
+    <!-- Stats row -->
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <span class="profile-stat-icon">🔥</span>
+        <div class="profile-stat-text">
+          <span id="profile-streak">0</span>
+          <span class="profile-stat-label" data-i18n="streak">Day Streak</span>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-icon">📖</span>
+        <div class="profile-stat-text">
+          <span id="profile-surahs-done">0 / 114</span>
+          <span class="profile-stat-label" data-i18n="surahs_read">surahs read</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goal progress -->
+    <div class="profile-goal-section">
+      <div class="profile-goal-header">
+        <div class="profile-goal-input-compact">
+          <input type="number" id="profile-goal-count" class="profile-number-input-sm"
+                 min="1" max="114" value="5">
+          <span class="profile-goal-sep" data-i18n="surahs_goal">surahs</span>
+          <select id="profile-goal-period" class="profile-select-sm">
+            <option value="day" data-i18n="per_day">/ day</option>
+            <option value="week" selected data-i18n="per_week">/ week</option>
+            <option value="month" data-i18n="per_month">/ month</option>
+          </select>
+          <button class="profile-goal-set" onclick="Profile.saveGoal()">Set</button>
+        </div>
+        <span id="profile-goal-badge" class="profile-goal-badge" style="display:none">🏅</span>
+      </div>
+      <div class="profile-goal-track">
+        <div class="profile-goal-bar" id="profile-goal-bar"></div>
+      </div>
+      <span id="profile-goal-label" class="profile-goal-label"></span>
+    </div>
+
+    <!-- Achievements -->
+    <div class="profile-ach-title" data-i18n="achievements">Achievements</div>
+    <div id="profile-achievements" class="profile-achievements"></div>
+
+  </div>
+
   <div>
     <div class="settings-section-title" data-i18n="theme">Theme</div>
     <div class="settings-btn-group">
@@ -249,7 +309,10 @@
   <!-- Notifications -->
   <div>
     <div class="settings-section-title" data-i18n="notifications">Notifications</div>
-    <span id="notif-status" class="notif-status notif-off"></span>
+    <div class="notif-status-row">
+      <span id="notif-status" class="notif-status notif-off"></span>
+      <button class="notif-test-btn" onclick="Notifications.testNotification()">Test</button>
+    </div>
 
     <div class="notif-row">
       <div class="notif-row-info">
@@ -376,6 +439,38 @@
   </div>
 </div>
 
+<!-- ── Profile Setup Modal ──────────────────────────────── -->
+<div id="profile-setup-modal" class="profile-setup-backdrop">
+  <div class="profile-setup-card">
+    <div class="setup-title" data-i18n="setup_title">Welcome to Iqra</div>
+    <div class="setup-sub" data-i18n="setup_sub">Let's personalise your experience</div>
+
+    <div class="setup-field">
+      <div class="settings-section-title" data-i18n="your_name">Your Name</div>
+      <input type="text" id="setup-name-input" class="profile-text-input"
+             placeholder="e.g. Fatima" maxlength="30">
+    </div>
+
+    <div class="setup-field">
+      <div class="settings-section-title" data-i18n="reading_goal">Reading Goal</div>
+      <div class="profile-goal-input-row">
+        <span data-i18n="setup_goal_label">I want to read</span>
+        <input type="number" id="setup-goal-count" class="profile-number-input"
+               min="1" max="114" value="5">
+        <span data-i18n="surahs_goal">surahs</span>
+        <select id="setup-goal-period" class="profile-select">
+          <option value="day" data-i18n="per_day">per day</option>
+          <option value="week" selected data-i18n="per_week">per week</option>
+          <option value="month" data-i18n="per_month">per month</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="setup-start-btn" onclick="Profile.saveSetup()" data-i18n="setup_btn">Get Started</button>
+    <button class="setup-skip-btn" onclick="Profile.closeSetup()" data-i18n="setup_skip">Skip for now</button>
+  </div>
+</div>
+
 <!-- ── Scripts ───────────────────────────────────────────── -->
 <script src="js/data/surahs.js"></script>
 <script src="js/data/juz.js"></script>
@@ -391,6 +486,7 @@
 <script src="js/pages/overview.js"></script>
 <script src="js/pages/reader.js"></script>
 <script src="js/pages/bookmarks.js"></script>
+<script src="js/pages/profile.js"></script>
 <script src="js/pages/tour.js"></script>
 <script src="app.js"></script>
 
@@ -400,17 +496,28 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
         .then(reg => {
+          // Check for updates on every load
           reg.update();
+
           reg.addEventListener('updatefound', () => {
             const nw = reg.installing;
             nw.addEventListener('statechange', () => {
-              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-                navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+              // New SW installed and ready — skip waiting so it activates immediately
+              if (nw.state === 'installed') {
                 nw.postMessage({ type: 'SKIP_WAITING' });
               }
             });
           });
         }).catch(e => console.warn('SW registration failed:', e));
+
+      // When a new SW takes control — reload once to get fresh files
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
     });
   }
 </script>

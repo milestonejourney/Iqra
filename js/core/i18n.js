@@ -70,6 +70,43 @@ const STRINGS = {
   remove:            ['Remove',                      'ہٹائیں',                    'हटाएं'],
 
 
+  // Profile
+  profile:           ['Profile',                    'پروفائل',                   'प्रोफ़ाइल'],
+  greeting:          ['Assalamu Alaikum',            'السلام علیکم',              'अस्सलामु अलैकुम'],
+  greeting_generic:  ['Assalamu Alaikum',            'السلام علیکم',              'अस्सलामु अलैकुम'],
+  your_name:         ['Your Name',                   'آپ کا نام',                 'आपका नाम'],
+  reading_goal:      ['Reading Goal',                'مطالعہ ہدف',                'पढ़ने का लक्ष्य'],
+  surahs_goal:       ['surahs',                      'سورتیں',                    'सूरहें'],
+  surahs_read:       ['surahs read',                 'سورتیں پڑھی',              'सूरहें पढ़ीं'],
+  no_goal_set:       ['No goal set',                 'کوئی ہدف نہیں',             'कोई लक्ष्य नहीं'],
+  per_day:           ['per day',                     'روزانہ',                    'प्रति दिन'],
+  per_week:          ['per week',                    'ہفتہ وار',                  'प्रति सप्ताह'],
+  per_month:         ['per month',                   'ماہانہ',                    'प्रति माह'],
+  period_day:        ['per day',                     'روزانہ',                    'प्रति दिन'],
+  period_week:       ['per week',                    'ہفتہ وار',                  'प्रति सप्ताह'],
+  period_month:      ['per month',                   'ماہانہ',                    'प्रति माह'],
+  streak:            ['Day Streak',                  'روزانہ سلسلہ',              'दैनिक स्ट्रीक'],
+  days:              ['days',                        'دن',                        'दिन'],
+  profile_saved:     ['Profile saved ✓',             'پروفائل محفوظ ✓',           'प्रोफ़ाइल सेव ✓'],
+  goal_saved:        ['Goal saved ✓',                'ہدف محفوظ ✓',               'लक्ष्य सेव ✓'],
+  save:              ['Save',                        'محفوظ کریں',                'सेव करें'],
+
+  // Achievements
+  achievements:      ['Achievements',               'اعزازات',                   'उपलब्धियां'],
+  ach_streak_7:      ['7-Day Streak',               '۷ روزہ سلسلہ',              '७-दिन स्ट्रीक'],
+  ach_kahf:          ['Al-Kahf Complete',            'الکہف مکمل',                'अल-कहफ़ पूरा'],
+  ach_mulk:          ['Al-Mulk Complete',            'الملک مکمل',                'अल-मुल्क पूरा'],
+  ach_surahs_10:     ['10 Surahs Read',              '۱۰ سورتیں پڑھیں',           '१० सूरहें पढ़ीं'],
+  ach_goal_met:      ['Monthly Goal! 🏅',            'ماہانہ ہدف! 🏅',            'मासिक लक्ष्य! 🏅'],
+
+  // Setup modal
+  setup_title:       ['Welcome to Iqra',             'اِقرَا میں خوش آمدید',      'इक़रा में आपका स्वागत'],
+  setup_sub:         ['Let\'s personalise your experience', 'آپ کا تجربہ ذاتی بنائیں', 'अपना अनुभव व्यक्तिगत बनाएं'],
+  setup_name_hint:   ['e.g. Fatima',                 'مثلاً فاطمہ',               'जैसे फ़ातिमा'],
+  setup_goal_label:  ['I want to read',              'میں پڑھنا چاہتا/چاہتی ہوں', 'मैं पढ़ना चाहता/चाहती हूं'],
+  setup_btn:         ['Get Started',                 'شروع کریں',                 'शुरू करें'],
+  setup_skip:        ['Skip for now',                'ابھی چھوڑیں',               'अभी छोड़ें'],
+
   // Notifications
   notifications:       ['Notifications',              'اطلاعات',                   'नोटिफ़िकेशन'],
   notif_active:        ['Active ✓',                   'فعال ✓',                    'सक्रिय ✓'],

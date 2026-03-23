@@ -2,6 +2,18 @@
 // APP.JS — Iqra V2
 // ============================================================
 
+// ── Unified position save (completion-aware) ──────────────
+function _savePosition() {
+  if (typeof Reader === 'undefined') return;
+  const { surahNum, currentAyah } = Reader.state;
+  if (!surahNum || !currentAyah) return;
+  saveLastSurah(surahNum);
+  // If at or past last ayah → save exact total so isSurahComplete() = true
+  const meta = typeof getSurahMeta === 'function' ? getSurahMeta(surahNum) : null;
+  const toSave = (meta && currentAyah >= meta.ayahs) ? meta.ayahs : currentAyah;
+  saveLastAyah(surahNum, toSave);
+}
+
 function showPage(pageName) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById('page-' + pageName);
@@ -15,10 +27,7 @@ function showPage(pageName) {
 
   // Save reader position whenever navigating away
   if (pageName !== 'reader' && typeof Reader !== 'undefined') {
-    if (Reader.state.surahNum && Reader.state.currentAyah) {
-      saveLastSurah(Reader.state.surahNum);
-      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
-    }
+    _savePosition();
   }
 
   if (pageName === 'overview')   Overview.render();
@@ -55,6 +64,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // NOW show overview — Reader.state.surahNum is correct, tile will highlight
   showPage('overview');
+
+  // Init profile — streak, achievements, setup prompt
+  Profile.init();
 
   // Init notifications — checks permission, reschedules active ones
   await Notifications.init();
@@ -112,7 +124,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (dist < bestDist) { bestDist = dist; best = b; }
       }
     });
-    if (best) Reader.state.currentAyah = parseInt(best.dataset.num);
+    if (best) {
+      Reader.state.currentAyah = parseInt(best.dataset.num);
+      _checkSurahComplete();
+    }
   }, { passive: true });
 
   // Also track on scroll for desktop
@@ -129,24 +144,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dist = Math.abs(rect.top + rect.height / 2 - mid);
         if (dist < bestDist) { bestDist = dist; best = b; }
       });
-      if (best) Reader.state.currentAyah = parseInt(best.dataset.num);
+      if (best) {
+        Reader.state.currentAyah = parseInt(best.dataset.num);
+        _checkSurahComplete();
+      }
     }, 150);
   }, { passive: true });
 
+  // Mark surah complete when last ayah is visible anywhere in viewport
+  function _checkSurahComplete() {
+    const { surahNum, ayahs } = Reader.state;
+    if (!surahNum || !ayahs.length) return;
+    const meta = getSurahMeta(surahNum);
+    if (!meta) return;
+
+    // Check if the last ayah block is visible anywhere in the viewport
+    const lastAyahEl = document.getElementById('ayah-' + meta.ayahs);
+    if (!lastAyahEl) return;
+
+    const rect = lastAyahEl.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+    if (isVisible) {
+      // Last ayah is on screen — mark surah complete
+      saveLastAyah(surahNum, meta.ayahs);
+    }
+  }
+
   // Save position when app backgrounds or closes
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' &&
-        Reader.state.surahNum && Reader.state.currentAyah) {
-      saveLastSurah(Reader.state.surahNum);
-      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
-    }
+    if (document.visibilityState === 'hidden') _savePosition();
   });
-  window.addEventListener('pagehide', () => {
-    if (Reader.state.surahNum && Reader.state.currentAyah) {
-      saveLastSurah(Reader.state.surahNum);
-      saveLastAyah(Reader.state.surahNum, Reader.state.currentAyah);
-    }
-  });
+  window.addEventListener('pagehide', _savePosition);
 
   // Tour swipe
   let _tourTouchX = null;

@@ -116,3 +116,52 @@ function saveNotifEnabled(type, on) { _set('notif_on_' + type, on ? '1' : '0'); 
 
 function loadNotifTime(type)        { return _get('notif_time_' + type) || null; }
 function saveNotifTime(type, time)  { _set('notif_time_' + type, time); }
+
+// ── User Profile ──────────────────────────────────────────
+function loadUserName()          { return _get('user_name') || ''; }
+function saveUserName(n)         { _set('user_name', n); }
+
+// Goal: { type: 'surahs'|'juz', count: number, period: 'day'|'week'|'month' }
+function loadUserGoal() {
+  try { return JSON.parse(_get('user_goal') || 'null'); } catch(e) { return null; }
+}
+function saveUserGoal(goal)      { _set('user_goal', JSON.stringify(goal)); }
+
+// ── Streak ────────────────────────────────────────────────
+function loadStreak() {
+  try { return JSON.parse(_get('streak') || '{"count":0,"lastDate":null}'); }
+  catch(e) { return { count: 0, lastDate: null }; }
+}
+function saveStreak(s)           { _set('streak', JSON.stringify(s)); }
+
+// ── Achievements ──────────────────────────────────────────
+// Array of { id, earnedAt }
+function loadAchievements() {
+  try { return JSON.parse(_get('achievements') || '[]'); } catch(e) { return []; }
+}
+function saveAchievements(arr)   { _set('achievements', JSON.stringify(arr)); }
+
+function hasAchievement(id)      { return loadAchievements().some(a => a.id === id); }
+
+function awardAchievement(id) {
+  if (hasAchievement(id)) return false;
+  const arr = loadAchievements();
+  arr.push({ id, earnedAt: Date.now() });
+  saveAchievements(arr);
+  return true; // newly awarded
+}
+
+// ── Surah completion (derived from last_ayah) ─────────────
+function isSurahComplete(surahNum) {
+  const meta = getSurahMeta(surahNum);
+  if (!meta) return false;
+  return loadLastAyah(surahNum) >= meta.ayahs;
+}
+
+function getCompletedSurahs() {
+  return SURAHS.filter(s => isSurahComplete(s.num)).map(s => s.num);
+}
+
+function getCompletedSurahCount() {
+  return SURAHS.filter(s => isSurahComplete(s.num)).length;
+}
