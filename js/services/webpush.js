@@ -12,8 +12,8 @@ const VAPID_PUBLIC_KEY = 'BNA7kGzNnCci1txuyo9T9prv7XB2dl0BHrkl3jmNeu19oTGKJTDJDb
 
 // GitHub Gist API endpoint for storing subscriptions
 // GIST_ID is set after creating the gist (see setup instructions)
-const GIST_ID = 'REPLACE_WITH_YOUR_GIST_ID';
-const GIST_TOKEN = 'REPLACE_WITH_YOUR_GITHUB_TOKEN';
+const GIST_ID = b05774eb07ac9471c6d388af8473b2d6;
+const GIST_TOKEN = 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;
 const GIST_API = 'https://api.github.com/gists/' + GIST_ID;
 
 const WebPush = {
