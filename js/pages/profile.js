@@ -135,9 +135,7 @@ const Profile = {
 
     // Streak
     const streakEl = document.getElementById('profile-streak');
-    if (streakEl) {
-      streakEl.textContent = streak + ' ' + t('days');
-    }
+    if (streakEl) streakEl.textContent = streak;
 
     // Progress bar
     const barEl    = document.getElementById('profile-goal-bar');

@@ -12,7 +12,7 @@
 //   Audio MP3s  → Cache First (replay without re-downloading)
 // ============================================================
 
-const APP_VERSION = 'iqra-v6.3';
+const APP_VERSION = 'iqra-v6.7';
 const SHELL_CACHE = APP_VERSION + '-shell';
 const API_CACHE   = APP_VERSION + '-api';
 const AUDIO_CACHE = APP_VERSION + '-audio';
@@ -33,6 +33,7 @@ const SHELL_FILES = [
   './js/services/quran-api.js',
   './js/services/offline.js',
   './js/services/notifications.js',
+  './js/services/webpush.js',
   './js/core/theme.js',
   './js/core/i18n.js',
   './js/core/settings.js',
@@ -311,6 +312,33 @@ function _cancelNotification(notifType) {
     delete _notifTimers[notifType];
   }
 }
+
+// ── Real push event — from GitHub Actions via Web Push ───
+self.addEventListener('push', event => {
+  if (!event.data) return;
+
+  let payload;
+  try { payload = event.data.json(); }
+  catch(e) { payload = { title: 'Iqra', body: event.data.text() }; }
+
+  const { title, body, notifType, surah, ayah, icon, badge } = payload;
+
+  event.waitUntil(
+    self.registration.showNotification(title || 'Iqra', {
+      body:     body || '',
+      icon:     icon  || './icons/icon-192.png',
+      badge:    badge || './icons/favicon-32.png',
+      tag:      'iqra-' + (notifType || 'push'),
+      renotify: false,
+      vibrate:  [200, 100, 200],
+      data:     { surah: surah || 1, ayah: ayah || 1, notifType },
+      actions:  [
+        { action: 'open',    title: 'Open Iqra' },
+        { action: 'dismiss', title: 'Dismiss'   },
+      ],
+    })
+  );
+});
 
 // ── Notification click → open app at correct ayah ─────────
 self.addEventListener('notificationclick', event => {

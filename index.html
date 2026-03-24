@@ -313,53 +313,18 @@
       <span id="notif-status" class="notif-status notif-off"></span>
       <button class="notif-test-btn" onclick="Notifications.testNotification()">Test</button>
     </div>
-
-    <div class="notif-row">
-      <div class="notif-row-info">
-        <span class="notif-row-label" data-i18n="notif_aotd_label">Ayah of the Day</span>
-        <div class="notif-row-time">
-          <span class="notif-time-label" data-i18n="notif_time_label">Time</span>
-          <input type="time" id="notif-time-aotd" class="notif-time-input" value="08:00"
-                 onchange="Notifications.updateTime('aotd', this.value)">
-        </div>
-      </div>
-      <label class="notif-toggle">
-        <input type="checkbox" id="notif-toggle-aotd"
-               onchange="Notifications.toggleNotif('aotd', this.checked)">
-        <span class="notif-toggle-slider"></span>
-      </label>
+    <button id="notif-subscribe-btn" class="notif-subscribe-btn"
+            onclick="WebPush.subscribe()">
+      Enable Notifications
+    </button>
+    <div class="notif-what">
+      <div class="notif-what-item">🌅 <span data-i18n="notif_aotd_label">Ayah of the Day</span> — 8:00 AM</div>
+      <div class="notif-what-item">🕌 <span data-i18n="notif_kahf_label">Friday Al-Kahf</span> — 8:00 AM</div>
+      <div class="notif-what-item">🌙 <span data-i18n="notif_mulk_label">Nightly Al-Mulk</span> — 8:30 PM</div>
     </div>
-
-    <div class="notif-row">
-      <div class="notif-row-info">
-        <span class="notif-row-label" data-i18n="notif_kahf_label">Friday Al-Kahf</span>
-        <div class="notif-row-time">
-          <span class="notif-time-label" data-i18n="notif_time_label">Time</span>
-          <input type="time" id="notif-time-kahf" class="notif-time-input" value="08:00"
-                 onchange="Notifications.updateTime('kahf', this.value)">
-        </div>
-      </div>
-      <label class="notif-toggle">
-        <input type="checkbox" id="notif-toggle-kahf"
-               onchange="Notifications.toggleNotif('kahf', this.checked)">
-        <span class="notif-toggle-slider"></span>
-      </label>
-    </div>
-
-    <div class="notif-row">
-      <div class="notif-row-info">
-        <span class="notif-row-label" data-i18n="notif_mulk_label">Nightly Al-Mulk</span>
-        <div class="notif-row-time">
-          <span class="notif-time-label" data-i18n="notif_time_label">Time</span>
-          <input type="time" id="notif-time-mulk" class="notif-time-input" value="21:30"
-                 onchange="Notifications.updateTime('mulk', this.value)">
-        </div>
-      </div>
-      <label class="notif-toggle">
-        <input type="checkbox" id="notif-toggle-mulk"
-               onchange="Notifications.toggleNotif('mulk', this.checked)">
-        <span class="notif-toggle-slider"></span>
-      </label>
+    <!-- Schedule info -->
+    <div id="notif-schedule" style="display:none" class="notif-schedule">
+      Notifications use your device timezone automatically.
     </div>
   </div>
 
@@ -480,6 +445,7 @@
 <script src="js/services/quran-api.js"></script>
 <script src="js/services/offline.js"></script>
 <script src="js/services/notifications.js"></script>
+<script src="js/services/webpush.js"></script>
 <script src="js/core/theme.js"></script>
 <script src="js/core/i18n.js"></script>
 <script src="js/core/settings.js"></script>
