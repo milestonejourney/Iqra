@@ -47,7 +47,12 @@ jobs:
           VAPID_SUBJECT     = os.environ.get('VAPID_SUBJECT', 'mailto:iqra@example.com')
           GIST_TOKEN        = os.environ['GIST_TOKEN']
           GIST_ID           = os.environ['GIST_ID']
-          MANUAL_TYPE       = os.environ.get('MANUAL_TYPE', '').strip()
+          MANUAL_TYPE = os.environ.get('MANUAL_TYPE', '').strip()
+          # If manually triggered without a type, default to test
+          import sys
+          is_manual = os.environ.get('GITHUB_EVENT_NAME', '') == 'workflow_dispatch'
+          if is_manual and not MANUAL_TYPE:
+            MANUAL_TYPE = 'test'
 
           now_utc = datetime.now(timezone.utc)
           print(f'UTC time: {now_utc.isoformat()}')
@@ -192,12 +197,16 @@ jobs:
             for i, payload in enumerate(payloads):
               if i > 0: time.sleep(2)
               try:
-                webpush(
+                # Normalize keys to URL-safe base64 (strip padding, fix + and /)
+              def to_urlsafe(s):
+                return s.replace('+', '-').replace('/', '_').rstrip('=')
+
+              webpush(
                   subscription_info={
                     'endpoint': sub['endpoint'],
                     'keys': {
-                      'p256dh': sub['keys']['p256dh'],
-                      'auth':   sub['keys']['auth'],
+                      'p256dh': to_urlsafe(sub['keys']['p256dh']),
+                      'auth':   to_urlsafe(sub['keys']['auth']),
                     }
                   },
                   data=json.dumps(payload),
