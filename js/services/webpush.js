@@ -12,8 +12,8 @@ const VAPID_PUBLIC_KEY = 'BNA7kGzNnCci1txuyo9T9prv7XB2dl0BHrkl3jmNeu19oTGKJTDJDb
 
 // GitHub Gist API endpoint for storing subscriptions
 // GIST_ID is set after creating the gist (see setup instructions)
-const GIST_ID = b05774eb07ac9471c6d388af8473b2d6;
-const GIST_TOKEN = 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;
+const GIST_ID = 'REPLACE_WITH_YOUR_GIST_ID';
+const GIST_TOKEN = 'REPLACE_WITH_YOUR_GITHUB_TOKEN';
 const GIST_API = 'https://api.github.com/gists/' + GIST_ID;
 
 const WebPush = {
@@ -131,8 +131,8 @@ const WebPush = {
     const subData = {
       endpoint:    sub.endpoint,
       keys:        {
-        p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))),
-        auth:   btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))),
+        p256dh: this._toUrlSafeBase64(sub.getKey('p256dh')),
+        auth:   this._toUrlSafeBase64(sub.getKey('auth')),
       },
       lang:        loadLang(),
       timezone:    Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -200,6 +200,17 @@ const WebPush = {
   },
 
   // ── Utility: convert VAPID key ────────────────────────────
+  // Convert ArrayBuffer to URL-safe base64 (what pywebpush expects)
+  _toUrlSafeBase64(arrayBuffer) {
+    const bytes = new Uint8Array(arrayBuffer);
+    let str = '';
+    bytes.forEach(b => str += String.fromCharCode(b));
+    return btoa(str)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  },
+
   _urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
