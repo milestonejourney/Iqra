@@ -51,10 +51,25 @@ const Reader = {
       const ayahs = await fetchSurah(num);
       this.state.ayahs   = ayahs;
       this.state.loading = false;
-      const target = startAyah || loadLastAyah(num);
-      this.state.currentAyah = Math.min(target, ayahs.length);
+      // If caller passed startAyah=1 (e.g. from Overview tile tap) BUT the surah
+      // is already marked complete, honour the explicit scroll-to-start but do NOT
+      // overwrite the saved lastAyah so the completion record is preserved.
+      const savedAyah = loadLastAyah(num);
+      const surahComplete = isSurahCompleted(num); // timestamp-based, never cleared
+      let target;
+      if (startAyah && startAyah === 1 && surahComplete) {
+        // User tapped a completed surah from Overview — start at top visually
+        // but keep savedAyah intact in memory so _savePosition doesn't regress it
+        target = 1;
+        this.state.currentAyah = 1;
+        // Re-stamp the full completion so localStorage stays correct
+        saveLastAyah(num, getSurahMeta(num).ayahs);
+      } else {
+        target = startAyah || savedAyah;
+        this.state.currentAyah = Math.min(target, ayahs.length);
+      }
       this.renderAyahs();
-      this._scrollToAyah(this.state.currentAyah, 'instant');
+      this._scrollToAyah(target, 'instant');
       prefetchSurah(num - 1);
       prefetchSurah(num + 1);
     } catch (err) {
@@ -321,7 +336,12 @@ const Reader = {
       if (this.state.playMode === 'surah') this._playNextInQueue();
       else this._stopAudio();
     });
-    audio.addEventListener('error',  () => this._stopAudio());
+    audio.addEventListener('error',  () => {
+      // Only show error if we were actually trying to play something
+      if (!this.state.isPlaying && this.state.playMode === 'idle') return;
+      this._stopAudio();
+      showToast('⚠ Audio unavailable — check your connection');
+    });
     audio.addEventListener('play',   () => { this.state.isPlaying = true;  this._updatePlayBtn(true);  });
     audio.addEventListener('pause',  () => { this.state.isPlaying = false; this._updatePlayBtn(false); });
   },
@@ -337,8 +357,12 @@ const Reader = {
 
   _stopAudio() {
     const audio = this.state.audio;
-    if (audio && !audio.paused) audio.pause();
-    if (audio) audio.src = '';
+    if (!audio) return;
+    if (!audio.paused) audio.pause();
+    // removeAttribute + load() is the correct way to reset Audio —
+    // setting src='' triggers an "Invalid URI" console warning and error event.
+    audio.removeAttribute('src');
+    audio.load(); // resets internal state, fires no error, no console noise
     this.state.isPlaying  = false;
     this.state.playMode   = 'idle';
     this.state.playQueue  = [];

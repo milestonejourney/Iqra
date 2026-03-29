@@ -9,6 +9,9 @@ function setTheme(theme) {
   document.querySelectorAll('[data-theme-btn]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-theme-btn') === theme);
   });
+  // Swap logos to match theme
+  const logoSrc = theme === 'light' ? 'icons/logo-light.png' : 'icons/logo-dark.png';
+  document.querySelectorAll('.theme-logo').forEach(img => { img.src = logoSrc; });
 }
 
 function setArabicSize(size) {

@@ -8,7 +8,9 @@
   <meta name="theme-color" content="#0D0F14">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,7 +27,7 @@
 <!-- ── Top Navigation ───────────────────────────────────── -->
 <nav id="mainNav">
   <div class="nav-brand" onclick="showPage('overview')">
-    <img class="nav-logo-img theme-logo" src="icons/logo-iqra.png" alt="Iqra">
+    <img class="nav-logo-img theme-logo" src="icons/logo-dark.png" alt="Iqra">
     <span class="nav-brand-latin">Iqra</span>
   </div>
   <button id="nav-surah-btn" onclick="openSurahSelector()" aria-label="Select Surah">
@@ -46,7 +48,7 @@
 <!-- ── Overview Page ─────────────────────────────────────── -->
 <div id="page-overview" class="page">
   <div class="overview-header">
-    <img class="overview-logo theme-logo" src="icons/logo-iqra.png" alt="Iqra">
+    <img class="overview-logo theme-logo" src="icons/logo-dark.png" alt="Iqra">
     <div class="overview-title">Iqra</div>
     <div class="overview-subtitle" data-i18n="app_tagline">Read. Listen. Reflect.</div>
   </div>
@@ -189,6 +191,13 @@
         </div>
       </div>
       <div class="profile-stat">
+        <span class="profile-stat-icon">🏆</span>
+        <div class="profile-stat-text">
+          <span id="profile-streak-longest">0</span>
+          <span class="profile-stat-label" data-i18n="streak_longest">Best Streak</span>
+        </div>
+      </div>
+      <div class="profile-stat">
         <span class="profile-stat-icon">📖</span>
         <div class="profile-stat-text">
           <span id="profile-surahs-done">0 / 114</span>
@@ -317,14 +326,41 @@
             onclick="WebPush.subscribe()">
       Enable Notifications
     </button>
-    <div class="notif-what">
-      <div class="notif-what-item">🌅 <span data-i18n="notif_aotd_label">Ayah of the Day</span> — 8:00 AM</div>
-      <div class="notif-what-item">🕌 <span data-i18n="notif_kahf_label">Friday Al-Kahf</span> — 8:00 AM</div>
-      <div class="notif-what-item">🌙 <span data-i18n="notif_mulk_label">Nightly Al-Mulk</span> — 8:30 PM</div>
-    </div>
-    <!-- Schedule info -->
-    <div id="notif-schedule" style="display:none" class="notif-schedule">
-      Notifications use your device timezone automatically.
+    <!-- Per-notification toggle + time rows (shown once permission granted) -->
+    <div class="notif-rows" id="notif-rows">
+      <div class="notif-row">
+        <span class="notif-row-icon">🌅</span>
+        <span class="notif-row-label" data-i18n="notif_aotd_label">Ayah of the Day</span>
+        <input type="time" class="notif-time-input" id="notif-time-aotd" value="08:00"
+               onchange="Notifications.updateTime('aotd', this.value)">
+        <label class="notif-toggle-wrap">
+          <input type="checkbox" id="notif-toggle-aotd"
+                 onchange="Notifications.toggleNotif('aotd', this.checked)">
+          <span class="notif-toggle-track"></span>
+        </label>
+      </div>
+      <div class="notif-row">
+        <span class="notif-row-icon">🕌</span>
+        <span class="notif-row-label" data-i18n="notif_kahf_label">Friday Al-Kahf</span>
+        <input type="time" class="notif-time-input" id="notif-time-kahf" value="08:00"
+               onchange="Notifications.updateTime('kahf', this.value)">
+        <label class="notif-toggle-wrap">
+          <input type="checkbox" id="notif-toggle-kahf"
+                 onchange="Notifications.toggleNotif('kahf', this.checked)">
+          <span class="notif-toggle-track"></span>
+        </label>
+      </div>
+      <div class="notif-row">
+        <span class="notif-row-icon">🌙</span>
+        <span class="notif-row-label" data-i18n="notif_mulk_label">Nightly Al-Mulk</span>
+        <input type="time" class="notif-time-input" id="notif-time-mulk" value="21:30"
+               onchange="Notifications.updateTime('mulk', this.value)">
+        <label class="notif-toggle-wrap">
+          <input type="checkbox" id="notif-toggle-mulk"
+                 onchange="Notifications.toggleNotif('mulk', this.checked)">
+          <span class="notif-toggle-track"></span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -385,6 +421,18 @@
 
 <!-- ── Toast ─────────────────────────────────────────────── -->
 <div id="app-toast" role="status" aria-live="polite"></div>
+
+<!-- ── Achievement / Goal Celebration Modal ──────────────── -->
+<div id="celebration-modal" role="dialog" aria-modal="true" aria-labelledby="celeb-title">
+  <div class="celebration-box">
+    <div class="celebration-particles" id="celebration-particles"></div>
+    <div class="celebration-icon" id="celeb-icon">🏅</div>
+    <div class="celebration-label" data-i18n="celeb_unlocked">Achievement Unlocked</div>
+    <div class="celebration-title" id="celeb-title"></div>
+    <div class="celebration-sub" id="celeb-sub"></div>
+    <button class="celebration-btn" onclick="Celebration.close()" data-i18n="celeb_btn">Alhamdulillah ✓</button>
+  </div>
+</div>
 
 <!-- ── Notification Permission Modal ────────────────────── -->
 <div id="notif-permission-modal" role="dialog" aria-modal="true">
@@ -454,6 +502,7 @@
 <script src="js/pages/bookmarks.js"></script>
 <script src="js/pages/profile.js"></script>
 <script src="js/pages/tour.js"></script>
+<script src="js/pages/celebration.js"></script>
 <script src="app.js"></script>
 
 <!-- Service Worker -->

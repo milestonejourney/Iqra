@@ -129,10 +129,26 @@ function saveUserGoal(goal)      { _set('user_goal', JSON.stringify(goal)); }
 
 // ── Streak ────────────────────────────────────────────────
 function loadStreak() {
-  try { return JSON.parse(_get('streak') || '{"count":0,"lastDate":null}'); }
-  catch(e) { return { count: 0, lastDate: null }; }
+  try { return JSON.parse(_get('streak') || '{"count":0,"longest":0,"lastDate":null}'); }
+  catch(e) { return { count: 0, longest: 0, lastDate: null }; }
 }
 function saveStreak(s)           { _set('streak', JSON.stringify(s)); }
+
+// ── Surah completion timestamps ───────────────────────────
+// Records the FIRST time a surah was fully read (epoch ms).
+// SEPARATE from lastAyah — navigation never clears this.
+function getSurahCompletedAt(surahNum) {
+  const v = _get('completed_at_' + surahNum);
+  return v ? parseInt(v) : null;
+}
+function markSurahCompleted(surahNum) {
+  if (!getSurahCompletedAt(surahNum)) {
+    _set('completed_at_' + surahNum, String(Date.now()));
+  }
+}
+function isSurahCompleted(surahNum) {
+  return getSurahCompletedAt(surahNum) !== null;
+}
 
 // ── Achievements ──────────────────────────────────────────
 // Array of { id, earnedAt }
@@ -151,17 +167,66 @@ function awardAchievement(id) {
   return true; // newly awarded
 }
 
-// ── Surah completion (derived from last_ayah) ─────────────
+// awardGoalPeriod: awards a REPEATABLE goal achievement.
+// Stores under a period-specific key (so it can fire again next period)
+// AND stamps the generic 'goal_met' id so the badge lights up permanently.
+// Returns true only the first time within this period.
+function awardGoalPeriod(periodKey) {
+  const fullId = 'goal_met_' + periodKey;
+  if (hasAchievement(fullId)) return false; // already awarded this period
+  const arr = loadAchievements();
+  arr.push({ id: fullId, earnedAt: Date.now() });
+  // Also stamp generic badge if not already there
+  if (!arr.some(a => a.id === 'goal_met')) {
+    arr.push({ id: 'goal_met', earnedAt: Date.now() });
+  }
+  saveAchievements(arr);
+  return true;
+}
+
+// periodKey: a stable string identifying the current goal period
+// e.g. 'day_2026-03-29', 'week_2026-W13', 'month_2026-03'
+function getGoalPeriodKey(period) {
+  const now = new Date();
+  if (period === 'day') {
+    return 'day_' + now.toISOString().slice(0, 10); // YYYY-MM-DD
+  }
+  if (period === 'week') {
+    // ISO week: find Monday of this week
+    const d = new Date(now);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // Monday
+    return 'week_' + d.toISOString().slice(0, 10);
+  }
+  // month
+  return 'month_' + now.toISOString().slice(0, 7); // YYYY-MM
+}
+
+// ── Surah completion ──────────────────────────────────────
+// isSurahComplete: real-time check — has the user reached the last ayah?
+// Used to TRIGGER completion. Don't use for goal counting.
 function isSurahComplete(surahNum) {
   const meta = getSurahMeta(surahNum);
   if (!meta) return false;
   return loadLastAyah(surahNum) >= meta.ayahs;
 }
 
+// getCompletedSurahs / getCompletedSurahCount:
+// Based on PERSISTENT completion timestamps — never cleared by navigation.
 function getCompletedSurahs() {
-  return SURAHS.filter(s => isSurahComplete(s.num)).map(s => s.num);
+  return SURAHS.filter(s => isSurahCompleted(s.num)).map(s => s.num);
 }
 
 function getCompletedSurahCount() {
-  return SURAHS.filter(s => isSurahComplete(s.num)).length;
+  return SURAHS.filter(s => isSurahCompleted(s.num)).length;
+}
+
+// getSurahsCompletedInPeriod: for goal progress — counts completions
+// whose FIRST-COMPLETION timestamp falls within [periodStart, now].
+function getSurahsCompletedInPeriod(periodStart) {
+  const since = periodStart.getTime();
+  const now   = Date.now();
+  return SURAHS.filter(s => {
+    const at = getSurahCompletedAt(s.num);
+    return at !== null && at >= since && at <= now;
+  }).length;
 }

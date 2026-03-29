@@ -8,7 +8,8 @@ const Profile = {
 
   // ── Init — called on every app open ───────────────────────
   init() {
-    this.updateStreak();
+    // NOTE: streak is only incremented via recordReadingSession(),
+    // called from app.js when the user actually reads. Not on app open.
     this.checkAchievements();
     this.updateSettingsUI();
 
@@ -19,7 +20,9 @@ const Profile = {
   },
 
   // ── Streak ────────────────────────────────────────────────
-  updateStreak() {
+  // Called only when the user actually reads (scrolls ayahs or plays audio).
+  // Opening the app alone does NOT increment the streak.
+  recordReadingSession() {
     const streak   = loadStreak();
     const today    = new Date().toDateString();
     const lastDate = streak.lastDate;
@@ -28,12 +31,17 @@ const Profile = {
 
     const yesterday = new Date(Date.now() - 86400000).toDateString();
     const newCount  = lastDate === yesterday ? streak.count + 1 : 1;
+    const longest   = Math.max(newCount, streak.longest || 0);
 
-    saveStreak({ count: newCount, lastDate: today });
+    saveStreak({ count: newCount, longest, lastDate: today });
   },
 
   getStreak() {
     return loadStreak().count || 0;
+  },
+
+  getLongestStreak() {
+    return loadStreak().longest || 0;
   },
 
   // ── Goal progress ─────────────────────────────────────────
@@ -45,17 +53,10 @@ const Profile = {
     let completed    = 0;
 
     if (goal.type === 'surahs') {
-      // Count surahs completed this period
-      const achievements = loadAchievements();
-      const periodStart  = this._periodStart(goal.period);
-      // Count from completedSurahs that were last read in this period
-      completed = SURAHS.filter(s => {
-        if (!isSurahComplete(s.num)) return false;
-        const ayah = loadLastAyah(s.num);
-        return ayah >= s.ayahs;
-      }).length;
-      // Cap at goal for display
-      completed = Math.min(completed, goal.count * 2); // show over-achievement too
+      // Count surahs whose FIRST completion timestamp falls within the current period.
+      // Uses markSurahCompleted() timestamps — never overwritten by navigation.
+      const periodStart = this._periodStart(goal.period);
+      completed = getSurahsCompletedInPeriod(periodStart);
     }
 
     const target  = goal.count;
@@ -87,12 +88,12 @@ const Profile = {
     }
 
     // 📖 Al-Kahf completed
-    if (isSurahComplete(18) && awardAchievement('kahf_complete')) {
+    if (isSurahCompleted(18) && awardAchievement('kahf_complete')) {
       newlyEarned.push({ id: 'kahf_complete', icon: '🕌', label: t('ach_kahf') });
     }
 
     // 🌙 Al-Mulk completed
-    if (isSurahComplete(67) && awardAchievement('mulk_complete')) {
+    if (isSurahCompleted(67) && awardAchievement('mulk_complete')) {
       newlyEarned.push({ id: 'mulk_complete', icon: '🌙', label: t('ach_mulk') });
     }
 
@@ -101,19 +102,21 @@ const Profile = {
       newlyEarned.push({ id: 'surahs_10', icon: '✨', label: t('ach_surahs_10') });
     }
 
-    // 🏅 Goal met
+    // 🏅 Goal met — repeatable per period (daily/weekly/monthly)
+    // awardGoalPeriod fires once per period window, permanently stamps badge
     const progress = this.getGoalProgress();
-    if (progress?.reached && awardAchievement('goal_met_' + new Date().getMonth())) {
-      newlyEarned.push({ id: 'goal_met', icon: '🏅', label: t('ach_goal_met') });
+    if (progress?.reached) {
+      const periodKey = getGoalPeriodKey(progress.goal.period);
+      if (awardGoalPeriod(periodKey)) {
+        newlyEarned.push({ id: 'goal_met', icon: '🏅', label: t('ach_goal_met') });
+        // Refresh UI immediately so badge lights up without waiting for next render
+        setTimeout(() => this.updateSettingsUI(), 50);
+      }
     }
 
-    // Show toast for newly earned
+    // Show celebration modal for newly earned achievements
     if (newlyEarned.length > 0) {
-      setTimeout(() => {
-        newlyEarned.forEach((a, i) => {
-          setTimeout(() => showToast(a.icon + ' ' + a.label), i * 1200);
-        });
-      }, 1500);
+      setTimeout(() => Celebration.show(newlyEarned), 600);
     }
   },
 
@@ -136,6 +139,8 @@ const Profile = {
     // Streak
     const streakEl = document.getElementById('profile-streak');
     if (streakEl) streakEl.textContent = streak;
+    const longestEl = document.getElementById('profile-streak-longest');
+    if (longestEl) longestEl.textContent = this.getLongestStreak();
 
     // Progress bar
     const barEl    = document.getElementById('profile-goal-bar');
@@ -168,7 +173,10 @@ const Profile = {
       const all = this._allAchievementDefs();
       const earned = loadAchievements();
       achEl.innerHTML = all.map(a => {
-        const isEarned = earned.some(e => e.id === a.id);
+        // goal_met badge lights up if ANY period variant has been awarded
+        const isEarned = a.id === 'goal_met'
+          ? earned.some(e => e.id === 'goal_met' || e.id.startsWith('goal_met_'))
+          : earned.some(e => e.id === a.id);
         return `<div class="ach-badge ${isEarned ? 'earned' : 'locked'}" title="${a.label}">
           <span class="ach-icon">${a.icon}</span>
           <span class="ach-label">${a.label}</span>

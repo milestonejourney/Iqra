@@ -25,9 +25,10 @@ function showPage(pageName) {
     btn.classList.toggle('active-page', btn.getAttribute('data-page') === pageName);
   });
 
-  // Save reader position whenever navigating away
+  // Save reader position + stop audio whenever navigating away
   if (pageName !== 'reader' && typeof Reader !== 'undefined') {
     _savePosition();
+    Reader._stopAudio();
   }
 
   if (pageName === 'overview')   Overview.render();
@@ -127,6 +128,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (best) {
       Reader.state.currentAyah = parseInt(best.dataset.num);
       _checkSurahComplete();
+      Profile.recordReadingSession(); // user is actively reading — count the streak
+      Profile.checkAchievements();   // catch goal crossing the instant it happens
     }
   }, { passive: true });
 
@@ -147,6 +150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (best) {
         Reader.state.currentAyah = parseInt(best.dataset.num);
         _checkSurahComplete();
+        Profile.recordReadingSession(); // user is actively reading — count the streak
+        Profile.checkAchievements();   // catch goal crossing the instant it happens
       }
     }, 150);
   }, { passive: true });
@@ -168,6 +173,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isVisible) {
       // Last ayah is on screen — mark surah complete
       saveLastAyah(surahNum, meta.ayahs);
+      markSurahCompleted(surahNum); // persistent timestamp — never cleared by navigation
+      Profile.checkAchievements();  // check unlocks immediately after completion
     }
   }
 
