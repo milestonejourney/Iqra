@@ -928,11 +928,11 @@ a:hover { color: var(--gold-light); }
   padding: 11px 16px;
 }
 
-@media (max-width: 360px) {
-  .bottom-nav-btn { min-width: 44px; }
+@media (max-width: 480px) {
+  .bottom-nav-btn { min-width: 44px; padding: 8px 4px; }
   #play-btn { padding: 10px 12px; font-size: 11px; }
   #audio-bar { gap: 4px; }
-  .bnb-label { display: none; }
+  .bnb-label { display: none; } /* icons only on phones — labels show on tablet+ */
 }
 
 /* ══════════════════════════════════════════════════════════
