@@ -42,9 +42,9 @@ const Notifications = {
     const opens = parseInt(_get('app_opens') || '0') + 1;
     _set('app_opens', opens);
 
-    // Show permission prompt if permission not yet decided
-    // Show on every open until user makes a decision
-    if (this.permission === 'default' && opens >= 2) {
+    // Show permission prompt if not yet decided and user hasn't dismissed it
+    const declined = _get('notif_declined') === '1';
+    if (this.permission === 'default' && opens >= 2 && !declined) {
       setTimeout(() => this.showPermissionPrompt(), 1500);
     }
 
@@ -86,8 +86,8 @@ const Notifications = {
 
   declinePermission() {
     this.hidePermissionPrompt();
-    // Don't ask again
-    _set('app_opens', '99');
+    // Dedicated flag — don't show prompt again this session/ever until permission granted
+    _set('notif_declined', '1');
   },
 
   // ── Schedule all active notifications ─────────────────────
@@ -251,6 +251,24 @@ const Notifications = {
       } else {
         status.textContent = t('notif_off');
         status.className   = 'notif-status notif-off';
+      }
+    }
+
+    // Subscribe button — reflects OS-level permission state, persists across reopens
+    const btn = document.getElementById('notif-subscribe-btn');
+    if (btn) {
+      if (this.isGranted) {
+        btn.textContent = '✓ Notifications Enabled';
+        btn.disabled    = true;
+        btn.classList.add('subscribed');
+      } else if (this.permission === 'denied') {
+        btn.textContent = 'Blocked — Enable in Browser Settings';
+        btn.disabled    = true;
+        btn.classList.add('subscribed');
+      } else {
+        btn.textContent = 'Enable Notifications';
+        btn.disabled    = false;
+        btn.classList.remove('subscribed');
       }
     }
 
