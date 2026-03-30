@@ -121,7 +121,7 @@ const Notifications = {
     sw.postMessage({
       type:        'SCHEDULE_NOTIFICATION',
       notifType:   'aotd',
-      delay:       next - Date.now(),
+      fireAt:      next,          // absolute epoch ms — survives SW restarts
       fetchAyah:   true,          // ← tells SW to fetch text at fire time
       surahNum:    ayah.surahNum,
       ayahNum:     ayah.ayahNum,
@@ -154,7 +154,7 @@ const Notifications = {
     sw.postMessage({
       type:      'SCHEDULE_NOTIFICATION',
       notifType: 'kahf',
-      delay:     next - Date.now(),
+      fireAt:    next,            // absolute epoch ms — survives SW restarts
       title:     titles[lang] || titles.en,
       body:      bodies[lang] || bodies.en,
       data:      { surah: 18, ayah: 1, url: './?notif=kahf' },
@@ -182,7 +182,7 @@ const Notifications = {
     sw.postMessage({
       type:      'SCHEDULE_NOTIFICATION',
       notifType: 'mulk',
-      delay:     next - Date.now(),
+      fireAt:    next,            // absolute epoch ms — survives SW restarts
       title:     titles[lang] || titles.en,
       body:      bodies[lang] || bodies.en,
       data:      { surah: 67, ayah: 1, url: './?notif=mulk' },
@@ -309,7 +309,7 @@ const Notifications = {
     sw.postMessage({
       type:      'SCHEDULE_NOTIFICATION',
       notifType: 'test',
-      delay:     3000, // 3 seconds
+      fireAt:    Date.now() + 3000, // 3 seconds from now
       title:     'Iqra ✓',
       body:      'Notifications are working!',
       data:      { surah: 1, ayah: 1 },
