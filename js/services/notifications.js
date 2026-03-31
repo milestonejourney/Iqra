@@ -48,9 +48,10 @@ const Notifications = {
       setTimeout(() => this.showPermissionPrompt(), 1500);
     }
 
-    // If already granted, reschedule all active notifications
+    // If already granted, reschedule and refresh periodic sync registration
     if (this.isGranted) {
       await this.scheduleAll();
+      await this._registerPeriodicSync();
     }
 
     // Update UI to reflect current state
@@ -79,6 +80,7 @@ const Notifications = {
       saveNotifEnabled('kahf',   true);
       saveNotifEnabled('mulk',   true);
       await this.scheduleAll();
+      await this._registerPeriodicSync();
       showToast(t('notif_enabled'));
     }
     this.updateSettingsUI();
@@ -223,6 +225,29 @@ const Notifications = {
     }
 
     return next.getTime();
+  },
+
+  // ── Register Periodic Background Sync ───────────────────────
+  // Wakes the SW every ~1-4h on Chrome Android (PWA installed).
+  // Re-registering on every app open is intentional and idempotent —
+  // the browser resets the interval, keeping the schedule fresh.
+  // Silently no-ops on iOS and desktop (API not supported there).
+  async _registerPeriodicSync() {
+    try {
+      if (!('periodicSync' in navigator.serviceWorker)) return;
+      const reg = await navigator.serviceWorker.ready;
+      if (!reg.periodicSync) return;
+
+      // Check permission — required on some Chrome versions
+      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (status.state !== 'granted') return;
+
+      await reg.periodicSync.register('iqra-notif-check', {
+        minInterval: 60 * 60 * 1000, // 1 hour minimum — browser decides actual interval
+      });
+    } catch(e) {
+      // Non-fatal — app works without it, notifications fire on next app open instead
+    }
   },
 
   // ── Get active SW ─────────────────────────────────────────

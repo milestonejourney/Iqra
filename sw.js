@@ -12,7 +12,7 @@
 //   Audio MP3s  → Cache First (replay without re-downloading)
 // ============================================================
 
-const APP_VERSION = 'iqra-v6.9';
+const APP_VERSION = 'iqra-v7.0';
 const SHELL_CACHE = APP_VERSION + '-shell';
 const API_CACHE   = APP_VERSION + '-api';
 const AUDIO_CACHE = APP_VERSION + '-audio';
@@ -34,6 +34,7 @@ const SHELL_FILES = [
   './js/services/offline.js',
   './js/services/notifications.js',
   './js/services/webpush.js',
+  './js/core/firebase.js',
   './js/core/theme.js',
   './js/core/i18n.js',
   './js/core/settings.js',
@@ -92,6 +93,12 @@ self.addEventListener('fetch', event => {
   // Quran API — network first so text is always fresh when online
   if (url.hostname === 'api.quran.com' || url.hostname === 'api.alquran.cloud') {
     event.respondWith(networkFirst(request, API_CACHE));
+    return;
+  }
+
+  // Firebase CDN — never intercept, always network
+  if (url.hostname === 'www.gstatic.com' || url.hostname.endsWith('.firebaseapp.com') || url.hostname.endsWith('.googleapis.com')) {
+    event.respondWith(fetch(request));
     return;
   }
 
@@ -420,6 +427,17 @@ async function _fetchAyahForNotif(surahNum, ayahNum, lang, nameEn, nameUr, nameH
     return { title, body: fallbackBody };
   }
 }
+
+// ── Periodic Background Sync — wakes SW on Android PWA ───
+// Chrome Android fires this every ~1-4h when PWA is installed.
+// Each wake: check IDB for overdue notifications and fire them.
+// This is the mechanism that makes notifications work when the
+// app is closed. iOS and desktop do not support this API.
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'iqra-notif-check') {
+    event.waitUntil(_checkAndReschedule());
+  }
+});
 
 // ── Real push event — from GitHub Actions via Web Push ────
 self.addEventListener('push', event => {
